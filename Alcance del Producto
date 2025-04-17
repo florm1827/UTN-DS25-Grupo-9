@@ -1,4 +1,5 @@
 Alcance del Producto:
+
 -Dentro del Alcance:
 -Registro y autenticación de usuarios
 -Calendario de reservas
@@ -6,7 +7,10 @@ Alcance del Producto:
 -Notificaciones automáticas por email.
 -Panel de administración con reportes.
 -Registro y cálculos de la cantidad de dinero recaudado diaria y mensualmente.
+
+
 Fuera del Alcance:
+
 -Pagos online o registro manual
 -Integración con sistemas contables externos
 -Funcionalidades específicas para otros deportes
