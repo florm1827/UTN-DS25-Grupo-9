@@ -4,4 +4,4 @@ Mora Florencia Milagros, Legajo: 31534, Alias:Mora Florencia Milagros, Git: http
 Bajkovec Juan Sebastián, Legajo: 31492, Alias:Juan Sebastián Bajkovec, Git: https://github.com/JuanBjk
 Tadeo Suarez, Legajo: 31146, Alias: tadeo suarez, Git: https://github.com/tadeo6
 Cesar Huari, Legajo: 32533, Alias: ccesar, Git: https://github.com/CesarHuari
-Sergio Nicolas Sampaoli, Legajo: 44636511, Alias: Nicolas Sampaoli, Git: https://github.com/nicosampa1
+Luca De Paola, legajo:31077, Alias: Luca De Paola, git: https://github.com/LucaDP16
