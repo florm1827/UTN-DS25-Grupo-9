@@ -1,2 +1,2 @@
-> .[!NOTE]*.
-> Nota Nota Nota
+.[!NOTE]*.
+Nota Nota Nota
