@@ -1,2 +1,2 @@
-.[!NOTE]*.
+.[!NOTE].
 Nota Nota Nota
