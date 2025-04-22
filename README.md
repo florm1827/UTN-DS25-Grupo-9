@@ -1,6 +1,6 @@
-![Logo](![Image](https://github.com/user-attachments/assets/81ac4d09-2ff9-485a-bc79-a30ba9ceba12))
+![Image](https://github.com/user-attachments/assets/9b6fb578-fbcd-4639-af61-1d0d0703cb78)
 
-# UTN-DS25-Grupo-9
+# Proyecto
 
 Plataforma web para reservar y administrar turnos de canchas de tenis y permitir que los clientes consulten la disponibilidad de las mismas y soliciten su turno.
 
