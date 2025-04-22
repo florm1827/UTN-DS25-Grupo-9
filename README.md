@@ -1,4 +1,4 @@
-![Logo](![Image](https://github.com/user-attachments/assets/81ac4d09-2ff9-485a-bc79-a30ba9ceba12))
+![Image](https://github.com/user-attachments/assets/81ac4d09-2ff9-485a-bc79-a30ba9ceba12)
 
 # UTN-DS25-Grupo-9
 
