@@ -19,7 +19,7 @@ Plataforma web para reservar y administrar turnos de canchas de tenis y permitir
 
 ### "00 - Documento de Visión y Alcance"
 
-- https://github.com/florm1827/UTN-DS25-Grupo-9/blob/8c6818115b463fc42ba2ca5daee034ec6dd05d57/documentacion/00-DocumentodeVisionyAlcance/Grupo%20N%C2%B09%20Gestion%20de%20Canchas%20de%20Tenis.pdf
+- [Doc de vision](https://github.com/florm1827/UTN-DS25-Grupo-9/blob/8c6818115b463fc42ba2ca5daee034ec6dd05d57/documentacion/00-DocumentodeVisionyAlcance/Grupo%20N%C2%B09%20Gestion%20de%20Canchas%20de%20Tenis.pdf)
 
 ### "01 - Análisis Inicial"
 
