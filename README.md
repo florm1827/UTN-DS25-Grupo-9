@@ -27,7 +27,11 @@ Plataforma web para reservar y administrar turnos de canchas de tenis y permitir
 
 ### "02 - Modelado de Dominio"
 
-- [ModeladodeDominio]()
+- [ModeladodeDominio](https://github.com/florm1827/UTN-DS25-Grupo-9/blob/main/documentacion/02-ModeladodeDominio/Procedimiento%20Para%20Armado%20de%20Backlog%20(%20fase%202%20).pdf)
+
+### "03 - Elaboracion del Product Backlog"
+
+- [Elaboracion del Product Backlog](https://github.com/florm1827/UTN-DS25-Grupo-9/blob/main/documentacion/03-ElaboracionDelProductBacklog/Procedimiento%20Para%20Armado%20de%20Backlog%20(%20fase%203%20).pdf)
 
 ### "04 - Validacion y Trazabilidad"
 
