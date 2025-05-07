@@ -27,4 +27,12 @@ Plataforma web para reservar y administrar turnos de canchas de tenis y permitir
 
 ### "02 - Modelado de Dominio"
 
-- [ModeladodeDominio]
+- [ModeladodeDominio]()
+
+### "04 - Validacion y Trazabilidad"
+
+- [Validacion y Trazabilidad]()
+
+### "06 - UX/UI"
+
+- [UX/UI]()
