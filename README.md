@@ -35,8 +35,8 @@ Plataforma web para reservar y administrar turnos de canchas de tenis y permitir
 
 ### "04 - Validacion y Trazabilidad"
 
-- [Validacion y Trazabilidad]()
+- [Validacion y Trazabilidad](https://github.com/florm1827/UTN-DS25-Grupo-9/blob/main/documentacion/04-ValidacionYTrazabilidad/Procedimiento%20Para%20Armado%20de%20Backlog%20(%20fase%204%20).pdf)
 
 ### "06 - UX/UI"
 
-- [UX/UI]()
+- [UX/UI](https://github.com/florm1827/UTN-DS25-Grupo-9/tree/main/documentacion/06-UXUI)
