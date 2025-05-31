@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+         header {
+        grid-area: header;
+        border-bottom:  #333 2px solid;;
+        color: #2F5B44;
+        display: flex;
+        align-items: center;
+        }
+        #opciones{
+            display: flex;
+            align-items: center;
+            width: 30%;
+            height: 100%;
+        }
+        #icono{
+            width: 96px;
+        }
+        #user{
+            width:13%;
+            margin: 20px;
+        }
+        #container{
+            display: flex;
+            height: 400px;
+            justify-content: center;
+            align-items: center;
+            flex-direction: row;
+            gap: 1px;
+        }
+        .overlay {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: -10em;
+            color: black;
+        }
+        .im {
+            display: flex;
+            width: 400px;
+            height: 400px;
+            border: #333 solid 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div id="opciones">
+            <img id="icono" src="https://ugc.production.linktr.ee/P1a4DyT5SuFn2KEQOn8g_eMxBK7O9Y71JdymF?io=true&size=avatar-v3_0">
+            <img id="user" src="https://th.bing.com/th/id/R.98f7ba11c0008416714360d79b38fcc3?rik=2Ejragac6mGlFQ&riu=http%3a%2f%2fpluspng.com%2fimg-png%2fuser-png-icon-thin-line-user-icon-2232.png&ehk=xfJZe9qWw%2fORWGP1VnUnQPT3r09SLw4ihK%2fyNms%2b2OA%3d&risl=&pid=ImgRaw&r=0">
+        </div>
+
+    </header>
+    <div id="container">
+        <div>
+            <img class="im" src="https://media.discordapp.net/attachments/1267247342067781749/1378517282845622433/Entrenamientos.jpg?ex=683ce3c3&is=683b9243&hm=4e9ff9d662e1c46d77df3a9aaa52297e3421f2bd3d1051099ba3ce2573ecc1c9&=&format=webp&width=725&height=544" width="200" style="cursor: pointer;" onclick="window.location.href='pagina.html'">
+            <div class="overlay">sobre nosotros</div>
+        </div>
+        <div>
+            <img class="im" src="https://media.discordapp.net/attachments/1267247342067781749/1378517283852386424/Alquiler.jpg?ex=683ce3c4&is=683b9244&hm=0ac5609366368d89ce08de8dc4ef33aa82432539a25342781df56e1d79bdfba0&=&format=webp&width=754&height=544" width="200" style="cursor: pointer;" onclick="window.location.href='Grilla.html'">
+            <div class="overlay">reserva tu cancha</div>
+        </div>
+        <div>
+            <img class="im" src="https://media.discordapp.net/attachments/1267247342067781749/1378517283554463935/Nosotros.jpg?ex=683ce3c4&is=683b9244&hm=e69023ed19577bc435af5020ba8257676ccb6fbbf43a1284aafdc96a8a6280b5&=&format=webp&width=815&height=544" width="200" style="cursor: pointer;" onclick="window.location.href='pagina.html'">
+            <div class="overlay">comienza a entrenar</div>
+        </div>
+    </div>
+</body>
+</html>
