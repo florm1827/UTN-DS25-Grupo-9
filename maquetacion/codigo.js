@@ -15,6 +15,10 @@
             function volver() {
                 window.location.href = "Grilla.html";
             }
+            function volverI(){
+                window.location.href = "inicio.html"
+            }
+
             function Realizarformulario(){
                 window.location.href = "RealizarSolicitud.html";
             }
