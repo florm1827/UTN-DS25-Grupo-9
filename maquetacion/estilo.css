@@ -93,14 +93,14 @@
             height: 100%;
         }
 
-        #grilla {
+        #contentabla {
             display: flex;
             align-items: center;
             justify-content: center;
             height: 100%;
             width: 100%;
         }
-        table{
+        #grilla{
             border: #137547 solid;
             width: 80%;
             margin: 20px auto;

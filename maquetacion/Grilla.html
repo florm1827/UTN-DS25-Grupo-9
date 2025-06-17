@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grid Layout Ejemplo</title>
     <link rel="stylesheet" href="estilo.css">
+        <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script src="codigo.js"></script>
     </head>
     <body>
@@ -15,7 +16,7 @@
             <img id="user" src="https://th.bing.com/th/id/R.98f7ba11c0008416714360d79b38fcc3?rik=2Ejragac6mGlFQ&riu=http%3a%2f%2fpluspng.com%2fimg-png%2fuser-png-icon-thin-line-user-icon-2232.png&ehk=xfJZe9qWw%2fORWGP1VnUnQPT3r09SLw4ihK%2fyNms%2b2OA%3d&risl=&pid=ImgRaw&r=0">
                         <button id="volver">volver</button>
             </div>
-            <button id="Solicitud" onclick="Realizarformulario()"">Realizar Solicitud</button>
+            <button id="Solicitud" onclick="Realizarformulario()">Realizar Solicitud</button>
         </header>
         <aside>
             <form id="formularioB">
@@ -24,8 +25,8 @@
             </form>
         </aside>
         <main>
-            <div id="grilla">
-                <table>
+            <div id="contentabla">
+                <table id="grilla">
                         <thead>
                         <tr>
                             <th>--</th>
@@ -40,165 +41,10 @@
 
                         </tr>
                         </thead>
-                        <tbody>
-                        <tr>
-                            <td>8:00</td>
-                            <td>1</td>
-                            <td>2500</td>
-                        </tr>
-                        <tr>
-                            <td>8:30</td>
-                            <td>2</td>
-                            <td>2400</td>
-                        </tr>
-                        <tr>
-                            <td>9:00</td>
-                            <td>3</td>
-                            <td>2300</td>
-                        </tr>
-                         <tr>
-                            <td>9:30</td>
-                            <td>3</td>
-                            <td>2300</td>
-                        </tr>
-                         <tr>
-                            <td>10:00</td>
-                            <td>3</td>
-                            <td>2300</td>
-                        </tr>
-                         <tr>
-                            <td>11:00</td>
-                            <td>3</td>
-                            <td>2300</td>
-                        </tr>
-                         <tr>
-                            <td>11:30</td>
-                            <td>3</td>
-                            <td>2300</td>
-                        </tr>
-                         <tr>
-                            <td>12:00</td>
-                            <td>3</td>
-                            <td>2300</td>
-                        </tr>
-                         <tr>
-                            <td>12:30</td>
-                            <td>3</td>
-                            <td>2300</td>
-                        </tr>
-                         <tr>
-                            <td>13:00</td>
-                            <td>3</td>
-                            <td>2300</td>
-                        </tr>
-                         <tr>
-                            <td>13:30</td>
-                            <td>3</td>
-                            <td>2300</td>
-                        </tr>
-                         <tr>
-                            <td>14:00</td>
-                            <td>3</td>
-                            <td>2300</td>
-                        </tr>
-                         <tr>
-                            <td>14:30</td>
-                            <td>3</td>
-                            <td>2300</td>
-                        </tr>
-                         <tr>
-                            <td>15:00</td>
-                            <td>3</td>
-                            <td>2300</td>
-                        </tr>
-                         <tr>
-                            <td>15:30</td>
-                            <td>3</td>
-                            <td>2300</td>
-                        </tr>
-                         <tr>
-                            <td>16:00</td>
-                            <td>3</td>
-                            <td>2300</td>
-                        </tr>
-                         <tr>
-                            <td>16:30</td>
-                            <td>3</td>
-                            <td>2300</td>
-                        </tr>
-                         <tr>
-                            <td>17:00</td>
-                            <td>3</td>
-                            <td>2300</td>
-                        </tr>
-                         <tr>
-                            <td>17:30</td>
-                            <td>3</td>
-                            <td>2300</td>
-                        </tr>
-                         <tr>
-                            <td>18:00</td>
-                            <td>3</td>
-                            <td>2300</td>
-                        </tr>
-                         <tr>
-                            <td>18:30</td>
-                            <td>3</td>
-                            <td>2300</td>
-                        </tr>
-                         <tr>
-                            <td>19:00</td>
-                            <td>3</td>
-                            <td>2300</td>
-                        </tr>
-                         <tr>
-                            <td>19:30</td>
-                            <td>3</td>
-                            <td>2300</td>
-                        </tr>
-                         <tr>
-                            <td>20:00</td>
-                            <td>3</td>
-                            <td>2300</td>
-                        </tr>
-                         <tr>
-                            <td>20:30</td>
-                            <td>3</td>
-                            <td>2300</td>
-                        </tr>
-                         <tr>
-                            <td>21:00</td>
-                            <td>3</td>
-                            <td>2300</td>
-                        </tr>
-                         <tr>
-                            <td>21:30</td>
-                            <td>3</td>
-                            <td>2300</td>
-                        </tr>
-                         <tr>
-                            <td>22:00</td>
-                            <td>3</td>
-                            <td>2300</td>
-                        </tr>
-                         <tr>
-                            <td>22:30</td>
-                            <td>3</td>
-                            <td>2300</td>
-                        </tr>
-                         <tr>
-                            <td>23:00</td>
-                            <td>3</td>
-                            <td>2300</td>
-                        </tr>
-                         <tr>
-                            <td>23:30</td>
-                            <td>3</td>
-                            <td>2300</td>
-                        </tr>
 
+                        <tbody>
                         </tbody>
-                    </table>
+                </table>
             </div>
         </main>
     </div>
