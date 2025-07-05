@@ -3,22 +3,26 @@ import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import ButtonBase from '@mui/material/ButtonBase';
 import Typography from '@mui/material/Typography';
+import { Link } from 'react-router-dom';
 
 const images = [
   {
     url: 'https://cdn.pixabay.com/photo/2014/09/12/20/15/tennis-court-443267_960_720.jpg',
     title: 'Alquier',
     width: '33%',
+    link: '/alq', 
   },
   {
     url: 'https://cdn.wallpapersafari.com/70/36/9ZKge6.jpg',
     title: 'Entrenamientos',
     width: '34%',
+    link: '/',
   },
   {
     url: 'https://www.thetennismom.com/wp-content/uploads/2019/07/Depositphotos_156620498_xl-2015.jpg',
     title: 'Nosotros',
     width: '33%',
+    link: '/',
   },
 ];
 
@@ -91,6 +95,8 @@ export default function ButtonBaseDemo() {
     <Box sx={{ display: 'flex', flexWrap: 'wrap', minWidth: 300, width: '100%' }}>
       {images.map((image) => (
         <ImageButton
+          component={Link}
+          to={image.link}
           focusRipple
           key={image.title}
           style={{
