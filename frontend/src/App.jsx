@@ -1,19 +1,24 @@
-import * as React from 'react';
-import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
-import ListOpc from './assets/components/Nav';
-import Box from '@mui/material/Box';
-import Header from './assets/components/Header';
+import { Routes, Route } from 'react-router-dom' ;
+import Alquiler from './pages/Alquiler';
+import Entrenamientos from './pages/Entrenamientos' ;
+import Home from './pages/Home' ;
+import Login from './pages/Login' ;
+import Nosotros from './pages/Nosotros';
+import CssBaseline from '@mui/material/CssBaseline';
 
-export default function BasicButtons() {
-  return (
-    <Box sx={{
-    boxShadow: 3,
-    display: "flex",
-    flexDirection: "column"
-    }}>
-    <Header></Header>
-    <ListOpc></ListOpc>
-    </Box>
-  );
+function App() {
+    return (
+      <>
+        <CssBaseline />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/log" element={<Login />} />
+          <Route path="/nos" element={<Nosotros />} />
+          <Route path="/alq" element={<Alquiler />} />
+          <Route path="/alq/entren" element={<Entrenamientos />} />
+        </Routes>
+      </>
+    );
 }
+
+export default App;
