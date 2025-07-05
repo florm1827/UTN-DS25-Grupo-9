@@ -4,7 +4,6 @@ import Button from '@mui/material/Button';
 import ListOpc from '../components/Nav';
 import Box from '@mui/material/Box';
 import Header from '../components/Header';
-import Grilla from '../components/Grilla';
 
 export default function Home() {
   return (
@@ -14,7 +13,6 @@ export default function Home() {
     flexDirection: "column"
     }}>
     <Header></Header>
-    <Grilla></Grilla>
     </Box>
   );
 }
