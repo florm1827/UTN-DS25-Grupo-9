@@ -6,6 +6,8 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
+import DeleteIcon from '@mui/icons-material/Delete';
+import HomeIcon from '@mui/icons-material/Home';
 import { Link } from 'react-router-dom';
 
 export default function ButtonAppBar() {
@@ -26,10 +28,12 @@ export default function ButtonAppBar() {
             aria-label="menu"
             sx={{ mr: 2 }}
           >
-            <MenuIcon />
           </IconButton>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            <Button component={Link} to='/'>Home</Button>
+            
+            <Button variant="outlined"  size='xl' component={Link} to='/' startIcon={<HomeIcon />}>
+            Volver inicio
+          </Button>
           </Typography>
           <Button component={Link} to='/log' color="inherit">Iniciar sesion</Button>
           <Button component={Link} to='/' color="inherit">Registrarse</Button>
