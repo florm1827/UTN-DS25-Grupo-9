@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
-import { Box, Button, Input, MenuItem, Select } from '@mui/material';
+import { Box, Button, FormControl, Input, MenuItem, Select } from '@mui/material';
 import Grilla from './Grilla';
+import FormLabel from '@mui/joy/FormLabel';
+import Typography from '@mui/joy/Typography';
+import Sheet from '@mui/joy/Sheet';
 
 export default function FormularioConGrilla() {
   const [horaInicio, setHoraInicio] = useState('');
@@ -9,7 +12,6 @@ export default function FormularioConGrilla() {
   const [cancha, setCancha] = useState('');
   const [reservas, setReservas] = useState([]);
 
-  // ✅ Función que detecta si hay superposición
   const hayConflicto = (nuevaReserva) => {
     return reservas.some((r) => {
       if (r.cancha !== nuevaReserva.cancha) return false;
@@ -25,6 +27,7 @@ export default function FormularioConGrilla() {
   const handleSubmit = () => {
     if (!horaInicio || !horaFin || !nombre || !cancha) {
       alert("⚠️ Completá todos los campos.");
+      
       return;
     }
 
@@ -45,10 +48,9 @@ export default function FormularioConGrilla() {
       return;
     }
 
-    // ✅ Agrega la reserva si todo está bien
+
     setReservas(prev => [...prev, nuevaReserva]);
 
-    // Limpiar campos
     setHoraInicio('');
     setHoraFin('');
     setNombre('');
@@ -57,11 +59,27 @@ export default function FormularioConGrilla() {
 
   return (
     <>
-    <h1>Selecciona Fecha Para ver reservas</h1>
+    <Typography level="h1" component="h1">Fecha Para ver reservas</Typography>
     <Input type='date'> </Input>
     <Box sx={{display:"flex", flexDirection:"row", gap:2}}>
               <Grilla reservas={reservas} />
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+    <Sheet
+            sx={{
+              width: 300,
+              mx: 'auto',
+              my: 4,
+              py: 3,
+              px: 2,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 2,
+              borderRadius: 'sm',
+              boxShadow: 'md',
+            }}
+          >
+      <Typography level="h1" component="h1">Reserva tu Turno</Typography>
+      <Typography level="body-sm">Complete los campos para realizar una reserva.</Typography>
+
       <Select value={cancha} onChange={e => setCancha(e.target.value)} displayEmpty>
         <MenuItem value="" disabled>Seleccionar cancha</MenuItem>
         {[...Array(8)].map((_, i) => (
@@ -69,17 +87,40 @@ export default function FormularioConGrilla() {
         ))}
       </Select>
 
-      Hora Inicio
-      <Input type="time" value={horaInicio} onChange={e => setHoraInicio(e.target.value)} />
+      <FormControl>
+        <FormLabel>Hora inicio</FormLabel>
+        <Input
+        name="horainicio"
+        type="time"
+        step="1800"
+        min="08:00"
+        max="23:59"
+        value={horaInicio} onChange={e => setHoraInicio(e.target.value)}
+        />
+      </FormControl>
 
-      Hora Fin
-      <Input type="time" value={horaFin} onChange={e => setHoraFin(e.target.value)} />
+      <FormControl>
+        <FormLabel>Hora Fin</FormLabel>
+        <Input
+        name="horafin"
+        type="time"
+        step="1800"
+        min="08:00"
+        max="23:59"
+        value={horaFin} onChange={e => setHoraFin(e.target.value)}
+        />
+      </FormControl>
 
-      Nombre de la reserva
-      <Input type="text" value={nombre} onChange={e => setNombre(e.target.value)} />
-
+      <FormControl>
+        <FormLabel>Nombre de reserva</FormLabel>
+        <Input
+        name="horafin"
+        type="text"
+        value={nombre} onChange={e => setNombre(e.target.value)}
+        />
+      </FormControl>
       <Button variant="contained" onClick={handleSubmit}>Reservar</Button>
-    </Box>
+    </Sheet>
     </Box>
     </>
   );

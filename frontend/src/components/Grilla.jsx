@@ -13,7 +13,6 @@ const canchas = [
   'cancha5', 'cancha6', 'cancha7', 'cancha8'
 ];
 
-// 🔴 Estilo para celdas reservadas
 const ReservedCell = styled('div')({
   backgroundColor: '#f44336',
   color: '#fff',
@@ -25,7 +24,6 @@ const ReservedCell = styled('div')({
   justifyContent: 'center',
 });
 
-// 🔁 Generador de filas basado en las reservas que se pasan por props
 function generarFilasConReservas(reservas) {
   return horas.map((hora, idx) => {
     const row = { id: idx, hora };
@@ -54,7 +52,6 @@ function generarFilasConReservas(reservas) {
   });
 }
 
-// 🔧 Columnas con renderizado condicional para celdas reservadas
 const columns = [
   {
     field: 'hora',
