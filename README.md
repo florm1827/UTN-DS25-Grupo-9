@@ -40,3 +40,6 @@ Plataforma web para reservar y administrar turnos de canchas de tenis y permitir
 ### "06 - UX/UI"
 
 - [UX/UI](https://github.com/florm1827/UTN-DS25-Grupo-9/tree/main/documentacion/06-UXUI)
+
+## Frontend
+- [Entrega Frontend](https://github.com/florm1827/UTN-DS25-Grupo-9/tree/main/frontend)
