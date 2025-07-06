@@ -31,7 +31,7 @@ export default function ButtonAppBar() {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             <Button component={Link} to='/'>Home</Button>
           </Typography>
-          <Button component={Link} to='/' color="inherit">Iniciar sesion</Button>
+          <Button component={Link} to='/log' color="inherit">Iniciar sesion</Button>
           <Button component={Link} to='/' color="inherit">Registrarse</Button>
         </Toolbar>
       </AppBar>

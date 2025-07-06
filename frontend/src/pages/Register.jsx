@@ -29,8 +29,24 @@ export default function App() {
   <Typography level="h1" component="h1">
     Bienvenido!
   </Typography>
-  <Typography level="body-sm">Inicia sesion para continuar.</Typography>
+  <Typography level="body-sm">Registre su cuenta para continuar.</Typography>
 </div>
+<FormControl>
+    <FormLabel>Nombre de usuario</FormLabel>
+    <Input 
+    name='nombre usuario'
+    type="text"
+    placeholder='juan01'
+    />
+</FormControl>
+<FormControl>
+    <FormLabel>Nombre Completo</FormLabel>
+    <Input 
+    name='nombre completo'
+    type="text"
+    placeholder='Juan Mariani'
+    />
+</FormControl>
 <FormControl>
   <FormLabel>Email</FormLabel>
   <Input
@@ -48,16 +64,17 @@ export default function App() {
     placeholder="Constraseña"
   />
 </FormControl>
+<FormControl>
+  <FormLabel>Repetir contraseña</FormLabel>
+  <Input
+    name="repetir contraseña"
+    type="Contraseña"
+    placeholder="Constraseña"
+  />
+</FormControl>
 <Button component={Link} to='/' sx={{ mt: 1 /* margin top */ }}>
-  Iniciar sesion
+  Registrarse
 </Button>
-<Typography
-  endDecorator={<Link to="/reg">Registrate</Link>}
-  fontSize="sm"
-  sx={{ alignSelf: 'center' }}
->
-  No tiene un cuenta?
-</Typography>
 </Sheet>
 
     </CssVarsProvider>
