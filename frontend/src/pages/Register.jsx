@@ -7,24 +7,52 @@ import FormLabel from '@mui/joy/FormLabel';
 import Input from '@mui/joy/Input';
 import Button from '@mui/joy/Button';
 import { Link } from 'react-router-dom';
+import GoBack from '../components/Goback';
 
 export default function App() {
   return (
     <CssVarsProvider>
-      <Sheet
-  sx={{
-    width: 300,
-    mx: 'auto', // margin left & right
-    my: 4, // margin top & bottom
-    py: 3, // padding top & bottom
-    px: 2, // padding left & right
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 2,
-    borderRadius: 'sm',
-    boxShadow: 'md',
-  }}
->
+            <div
+        style={{
+          minHeight: '100vh',
+          backgroundImage: 'url(https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRF0atdvUQ0jfi9D9EQpi_WDrh8Nmf1B0ogOQ&s)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          position: 'relative',
+        }}
+      >
+        <div
+          style={{
+            position: 'absolute',
+            top: 0, left: 0, right: 0, bottom: 0,
+            backdropFilter: 'blur(8px)',
+            backgroundColor: 'rgba(255,255,255,0.2)',
+            zIndex: 0,
+          }}
+        />
+        <div style={{ position: 'absolute', top: 16, left: 16, zIndex: 2 }}>
+          <GoBack />
+        </div>
+        <Sheet
+          sx={{
+            width: 300,
+            mx: 'auto',
+            my: 4,
+            py: 3,
+            px: 2,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 2,
+            borderRadius: 'sm',
+            boxShadow: 'md',
+            zIndex: 1,
+            backdropFilter: 'blur(5px)',
+            backgroundColor: 'rgba(255,255,255,0.7)',
+          }}
+        >
   <div>
   <Typography level="h1" component="h1">
     Bienvenido!
@@ -76,7 +104,7 @@ export default function App() {
   Registrarse
 </Button>
 </Sheet>
-
+</div>
     </CssVarsProvider>
   );
 }
