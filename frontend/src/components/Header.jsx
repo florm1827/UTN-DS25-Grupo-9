@@ -30,7 +30,7 @@ export default function ButtonAppBar() {
             position: 'relative'
           }}
         >
-          <Button component={Link} to="/reg" color="inherit">Registrarse</Button>
+          {/* <Button component={Link} to="/reg" color="inherit">Registrarse</Button> */}
           <Box
             sx={{
               position: 'absolute',
