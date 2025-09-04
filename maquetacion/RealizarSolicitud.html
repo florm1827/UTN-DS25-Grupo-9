@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="estiloR.css">
+      <script src="codigo.js"></script>
+</head>
+<body id="todo">
+    <header>
+
+            <img id="icono" src="https://ugc.production.linktr.ee/P1a4DyT5SuFn2KEQOn8g_eMxBK7O9Y71JdymF?io=true&size=avatar-v3_0">
+
+            <button id="volver" onclick="volver()">volver</button>
+
+    </header>
+   <form id="FormularioR">
+  <input type="date" id="fecha" name="fecha" />
+
+  <select id="canchas" name="canchas">
+    <option value="">Seleccione una cancha</option>
+    <option value="c1">Cancha 1</option>
+    <option value="c2">Cancha 2</option>
+    <option value="c3">Cancha 3</option>
+    <option value="c4">Cancha 4</option>
+    <option value="c1">Cancha 5</option>
+    <option value="c2">Cancha 6</option>
+    <option value="c3">Cancha 7</option>
+    <option value="c4">Cancha 8</option>
+  </select>
+
+  <select id="horainicio" name="horainicio">
+    <option value="">Hora de inicio</option>
+    <option value="08:00">08:00</option>
+    <option value="08:30">08:30</option>
+    <option value="09:00">09:00</option>
+  </select>
+
+  <select id="horafin" name="horafin">
+    <option value="">Hora de fin</option>
+    <option value="09:00">09:00</option>
+    <option value="09:30">09:30</option>
+    <option value="10:00">10:00</option>
+  </select>
+
+  <select id="tiporeserva" name="tiporeserva">
+    <option value="">Tipo de reserva</option>
+    <option value="turnofijo">Turno fijo</option>
+    <option value="standard">Turno standard</option>
+    <option value="clase">Clase</option>
+    <option value="torneo">Torneo</option>
+  </select>
+
+  <input type="submit" value="Enviar" />
+</form>
+</body>
+</html>
