@@ -1,1 +1,265 @@
-xd
+# Documentación de API REST - Reservas de Canchas
+
+## 1. Endpoints por pantalla
+
+### Pantalla Login
+- POST /api/auth/login
+
+### Pantalla Registro
+- POST /api/auth/register
+
+### Pantalla Alquileres
+- GET /api/courts
+- GET /api/prices/current
+- GET /api/reservas?fecha=YYYY-MM-DD&status=approved
+- POST /api/reservas
+
+### Pantalla Admin
+- GET /api/reservas?status=pending
+- PATCH /api/reservas/:id/status
+- PATCH /api/courts/:id
+- PATCH /api/prices/current
+
+---
+
+## 2. Detalle de Endpoints
+
+### POST /api/auth/register
+- Método/Reglas: crea usuario nuevo (role="user") validando email único y password >= 6.
+- Autenticación: no requiere.
+
+```ts
+export interface RegisterRequest {
+  email: string;
+  password: string;
+}
+
+export interface AuthUser {
+  id: string;
+  email: string;
+  role: "user" | "admin";
+}
+
+export interface AuthResponse {
+  user: AuthUser;
+  token: string;
+}
+```
+
+---
+
+### POST /api/auth/login
+- Método/Reglas: valida credenciales y devuelve { user, token }.
+- Autenticación: no requiere.
+
+```ts
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+export type LoginResponse = AuthResponse;
+```
+
+---
+
+### GET /api/courts
+- Método/Reglas: lista canchas con estado habilitado/deshabilitado.
+- Autenticación: pública.
+
+```ts
+export interface Court {
+  id: string;
+  name: string;
+  enabled: boolean;
+}
+export type CourtsResponse = Court[];
+```
+
+---
+
+### PATCH /api/courts/:id
+- Método/Reglas: admin habilita/deshabilita o renombra cancha.
+- Autenticación: requiere admin.
+
+```ts
+export interface UpdateCourtRequest {
+  name?: string;
+  enabled?: boolean;
+}
+export type UpdateCourtResponse = Court;
+```
+
+---
+
+### GET /api/prices/current
+- Método/Reglas: devuelve precio vigente por 30 minutos.
+- Autenticación: pública.
+
+```ts
+export interface CurrentPrice {
+  amountPer30m: number;
+}
+```
+
+---
+
+### PATCH /api/prices/current
+- Método/Reglas: admin actualiza precio por 30’.
+- Autenticación: requiere admin.
+
+```ts
+export interface UpdatePriceRequest {
+  amountPer30m: number;
+}
+export type UpdatePriceResponse = CurrentPrice;
+```
+
+---
+
+### GET /api/reservas?fecha=YYYY-MM-DD&status=approved
+- Método/Reglas: devuelve reservas aprobadas para esa fecha (grilla).
+- Autenticación: requiere usuario logueado.
+
+```ts
+export type ReservationStatus = "pending" | "approved" | "rejected";
+
+export interface Reservation {
+  id: string;
+  fechaISO: string;
+  courtId: string;
+  horaInicio: string;
+  horaFin: string;
+  nombre: string;
+  status: ReservationStatus;
+  userId: string;
+  pricePer30AtBooking: number;
+  totalAtBooking: number;
+}
+export type ReservationsResponse = Reservation[];
+```
+
+---
+
+### POST /api/reservas
+- Método/Reglas: crea reserva con status="pending", valida horarios múltiplos de 30’.
+- Autenticación: requiere usuario logueado.
+
+```ts
+export interface CreateReservationRequest {
+  fechaISO: string;   // "YYYY-MM-DD"
+  courtId: string;
+  horaInicio: string; // "HH:mm"
+  horaFin: string;    // "HH:mm"
+  nombre: string;
+}
+export type CreateReservationResponse = Reservation;
+```
+
+---
+
+### GET /api/reservas?status=pending
+- Método/Reglas: lista reservas pendientes (admin).
+- Autenticación: requiere admin.
+
+```ts
+export type PendingReservationsResponse = Reservation[];
+```
+
+---
+
+### PATCH /api/reservas/:id/status
+- Método/Reglas: admin aprueba o rechaza reserva.
+- Autenticación: requiere admin.
+
+```ts
+export interface UpdateReservationStatusRequest {
+  status: "approved" | "rejected";
+}
+export type UpdateReservationStatusResponse = Reservation;
+```
+
+
+
+---
+
+## Turnos Fijos (solo Admin)
+
+### GET /api/standing-reservations
+- Método/Reglas: lista todos los turnos fijos existentes, ordenados por cancha/día/hora.
+- Autenticación: requiere admin.
+
+```ts
+export interface StandingReservationDTO {
+  id: string;
+  courtId: string;
+  weekday: 0|1|2|3|4|5|6;  // 0=Dom ... 6=Sáb
+  horaInicio: string;      // "HH:mm"
+  horaFin: string;         // "HH:mm"
+  fromDate: string;        // "YYYY-MM-DD"
+  toDate: string;          // "YYYY-MM-DD"
+  nombre: string;
+}
+
+export type ListStandingReservationsResponse = StandingReservationDTO[];
+```
+
+---
+
+### POST /api/standing-reservations
+- Método/Reglas: crea un turno fijo y materializa reservas approved entre fromDate y toDate en el día indicado.
+- Validaciones: múltiplos de 30’, inicio < fin, rango válido, cancha habilitada, sin solapamiento con approved.
+- Autenticación: requiere admin.
+
+```ts
+export interface CreateStandingRequest {
+  courtId: string;
+  weekday: 0|1|2|3|4|5|6;
+  horaInicio: string;   // "HH:mm"
+  horaFin: string;      // "HH:mm"
+  fromDate: string;     // "YYYY-MM-DD"
+  toDate: string;       // "YYYY-MM-DD"
+  nombre: string;
+}
+
+export interface CreateStandingResponse {
+  standing: StandingReservationDTO;
+  createdInstances: number;
+}
+```
+
+---
+
+### DELETE /api/standing-reservations/:id?futureOnly=true
+- Método/Reglas: elimina el turno fijo.
+  - futureOnly=true (default): borra solo instancias futuras.
+  - futureOnly=false: borra todas las instancias.
+- Autenticación: requiere admin.
+
+```ts
+export interface DeleteStandingResponse {
+  deletedInstances: number;
+}
+```
+
+---
+
+### PATCH /api/standing-reservations/:id (opcional)
+- Método/Reglas: permite actualizar horas/rango/nombre; recalcula instancias futuras evitando solapes.
+- Autenticación: requiere admin.
+
+```ts
+export interface UpdateStandingRequest {
+  weekday?: 0|1|2|3|4|5|6;
+  horaInicio?: string;
+  horaFin?: string;
+  fromDate?: string;
+  toDate?: string;
+  nombre?: string;
+}
+
+export interface UpdateStandingResponse {
+  standing: StandingReservationDTO;
+  affectedFutureInstances: number;
+}
+```
+
