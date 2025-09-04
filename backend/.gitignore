@@ -1,0 +1,21 @@
+## Archivo   .gitignore
+# Node modules
+node_modules/
+# Compilados de TypeScript
+dist/
+# Logs
+logs/
+*.log
+npm-debug.log*
+# Archivos temporales de sistema operativo / editor
+.DS_Store
+Thumbs.db
+*.swp
+# Configuración de entorno (no se comparte)
+.env
+# Archivos de desarrollo opcionales
+*.local.*
+*.tsbuildinfo
+# IDEs
+.vscode/
+.idea/
