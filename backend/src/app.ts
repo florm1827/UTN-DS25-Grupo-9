@@ -4,7 +4,7 @@ import { handleError } from "./middlewares/error.middleware";
 import { logRequest } from "./middlewares/logger.middleware";
 import { reservaRoutes } from "./routes/reserva.routes";
 import { canchaRoutes } from "./routes/cancha.routes";
-
+import { precioRoutes } from "./routes/precio.routes";
 const app = express();
 const PORT = 3000;
 
@@ -22,3 +22,4 @@ app.use(handleError);
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
+app.use("/api/precios", precioRoutes); // incluye GET/PATCH y POST /api/precios/cotizaciones
