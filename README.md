@@ -41,6 +41,17 @@ Plataforma web para reservar y administrar turnos de canchas de tenis y permitir
 
 - [UX/UI](https://github.com/florm1827/UTN-DS25-Grupo-9/tree/main/documentacion/06-UXUI)
 
+### "07 - Endpoints"
+
+- [Endpoints](https://github.com/florm1827/UTN-DS25-Grupo-9/tree/main/documentacion/07-Endpoints)
+
+### "08 - Diagrama de Clases"
+
+- [Diagrama de Clases](https://github.com/florm1827/UTN-DS25-Grupo-9/tree/main/documentacion/08-DiagramaClases)
+
 ## Frontend
 - [Entrega Frontend](https://github.com/florm1827/UTN-DS25-Grupo-9/tree/main/frontend)
   En esta entrega realizamos las paginas home, login, register, y Alquiler, los links a paginas que todavia no esten hechas te llevan al home
+
+## Backend
+- [Entrega Backend](https://github.com/florm1827/UTN-DS25-Grupo-9/tree/main/backend)
