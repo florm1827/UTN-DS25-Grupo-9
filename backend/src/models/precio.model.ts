@@ -1,18 +1,45 @@
 import { prisma } from "../config/prisma";
 
+
+function asMoneda(x: unknown): "ARS" | "USD" {
+  return x === "USD" ? "USD" : "ARS";
+}
+
 export const PrecioModel = {
   async obtener() {
-    const p = await prisma.precio.findUnique({ where: { id: 1 } });
-    return p ?? prisma.precio.create({ data: { id: 1, minutosPorBloque: 30, precioPorBloque: 2500, moneda: "ARS" } });
+    const existente = await prisma.precio.findUnique({ where: { id: 1 } });
+    if (existente) return existente;
+
+    return prisma.precio.create({
+      data: {
+        id: 1,
+        minutosPorBloque: 30,
+        precioPorBloque: 3000,
+        moneda: "ARS"
+      }
+    });
   },
-  actualizar(nuevo: { precioPorBloque: number; moneda?: "ARS" | "USD"; vigenteDesde?: Date; }) {
+
+  async actualizar(data: {
+    precioPorBloque: number;
+    moneda?: "ARS" | "USD";
+    vigenteDesde?: Date;
+  }) {
+    await this.obtener();
+
+  
+    const payload: any = {
+      precioPorBloque: data.precioPorBloque,
+    };
+    if (data.moneda) payload.moneda = asMoneda(data.moneda);
+    if (data.vigenteDesde) payload.vigenteDesde = data.vigenteDesde;
+
     return prisma.precio.update({
       where: { id: 1 },
-      data: { precioPorBloque: nuevo.precioPorBloque, moneda: nuevo.moneda, vigenteDesde: nuevo.vigenteDesde }
+      data: payload
     });
   }
 };
-
 
 // import { Precio } from "../types/precio.types";
 

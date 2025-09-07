@@ -5,7 +5,7 @@ export interface Usuario {
   nombre: string;
   email: string;
   rol: Rol;
-  contraseniaHash: string; // nunca guardes texto plano
+  contraseniaHash: string; 
   creadoEn: string;
   actualizadoEn: string;
 }

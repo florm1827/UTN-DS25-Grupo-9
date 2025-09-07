@@ -1,15 +1,22 @@
-// src/models/reserva.model.ts
 import { prisma } from "../config/prisma";
 import type { EstadoReserva } from "../types/enums-locales";
 
 export const ReservaModel = {
   listar() {
-    return prisma.reserva.findMany();
+    return prisma.reserva.findMany({ orderBy: { inicio: "asc" } });
   },
+
   obtenerPorId(id: string) {
     return prisma.reserva.findUnique({ where: { id } });
   },
-  crear(data: { usuarioId?: string | null; canchaId: string; inicio: string; fin: string; nombreMostrar: string; }) {
+
+  crear(data: {
+    usuarioId?: string | null;
+    canchaId: string;
+    inicio: string;   
+    fin: string;      
+    nombreMostrar: string;
+  }) {
     return prisma.reserva.create({
       data: {
         usuarioId: data.usuarioId ?? null,
@@ -17,15 +24,18 @@ export const ReservaModel = {
         inicio: new Date(data.inicio),
         fin: new Date(data.fin),
         nombreMostrar: data.nombreMostrar,
-        estado: "PENDIENTE" // ← string literal
+        estado: "PENDIENTE"
       }
     });
   },
+
   actualizarEstado(id: string, estado: EstadoReserva, motivoRechazo?: string) {
-    return prisma.reserva.update({ where: { id }, data: { estado, motivoRechazo } });
+    return prisma.reserva.update({
+      where: { id },
+      data: { estado, motivoRechazo }
+    });
   }
 };
-
 
 // import { Reserva } from "../types/reserva.types";
 

@@ -4,6 +4,6 @@ export function logRequest (req: Request, res: Response, next: NextFunction ) {
   const method = req.method;
   const url = req.url;
   console.log(`[${timestamp}] ${method} ${url}`);
-  // ¡FUNDAMENTAL! Llamar next() para continuar
+
   next();
 }

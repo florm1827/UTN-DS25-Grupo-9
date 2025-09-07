@@ -1,18 +1,23 @@
 import { Request, Response, NextFunction } from "express";
-import { CanchaService } from "../services/cancha.service";
-import { ActualizarEstadoCanchaDTO } from "../types/cancha.types";
+import { CanchaModel } from "../models/cancha.model";
 
-export const listarCanchas = (req: Request, res: Response, next: NextFunction) => {
+export const listarCanchas = async (_req: Request, res: Response, next: NextFunction) => {
   try {
-    res.json(CanchaService.listar());
-  } catch (err) { next(err); }
+    const c = await CanchaModel.listar();
+    res.json(c);
+  } catch (err) {
+    next(err);
+  }
 };
 
-export const actualizarEstadoCancha = (req: Request, res: Response, next: NextFunction) => {
+export const actualizarEstadoCancha = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { id } = req.params;
-    const dto = req.body as ActualizarEstadoCanchaDTO;
-    const r = CanchaService.actualizarEstado(id, dto);
-    res.json(r);
-  } catch (err) { next(err); }
+    const params = (req.validated?.params ?? req.params) as { id: string };
+    const body = (req.validated?.body ?? req.body) as { estado: "HABILITADA" | "DESHABILITADA"; nota?: string };
+
+    const updated = await CanchaModel.actualizarEstado(params.id, body.estado);
+    res.json(updated);
+  } catch (err) {
+    next(err);
+  }
 };

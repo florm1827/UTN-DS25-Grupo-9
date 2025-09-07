@@ -1,8 +1,8 @@
 export type EstadoIntervalo = "LIBRE" | "OCUPADO";
 
 export interface ConsultaDisponibilidad {
-  fecha: string;     // YYYY-MM-DD
-  canchaId?: string; // opcional
+  fecha: string;     
+  canchaId?: string; 
 }
 
 export interface IntervaloDisponibilidad { 

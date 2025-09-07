@@ -1,18 +1,21 @@
 import { prisma } from "../config/prisma";
-import { Prisma } from "@prisma/client";
 
 export const CanchaModel = {
   listar() {
-    return prisma.cancha.findMany();
+    return prisma.cancha.findMany({ orderBy: { nombre: "asc" } });
   },
+
   obtenerPorId(id: string) {
     return prisma.cancha.findUnique({ where: { id } });
   },
+
   actualizarEstado(id: string, estado: "HABILITADA" | "DESHABILITADA") {
-    return prisma.cancha.update({ where: { id }, data: { estado } });
+    return prisma.cancha.update({
+      where: { id },
+      data: { estado }
+    });
   }
 };
-
 
 // import { Cancha } from "../types/cancha.types";
 

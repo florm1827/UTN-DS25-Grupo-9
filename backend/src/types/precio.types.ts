@@ -1,9 +1,9 @@
 export interface Precio {
   minutosPorBloque: 30;      // fijo a 30' según tu negocio
-  precioPorBloque: number;   // p. ej. 2500
+  precioPorBloque: number;   
   moneda: "ARS" | "USD";
-  vigenteDesde: string;      // ISO: cuándo empezó a regir
-  actualizadoEn: string;     // ISO: última modificación
+  vigenteDesde: string;     
+  actualizadoEn: string;    
 }
 
 export interface ActualizarPrecioDTO {
@@ -14,9 +14,9 @@ export interface ActualizarPrecioDTO {
 }
 
 export interface SolicitudCotizacionDTO {
-  canchaId: string;          // se incluye por trazabilidad / futuras reglas
-  inicio: string;            // ISODateTime
-  fin: string;               // ISODateTime
+  canchaId: string;          
+  inicio: string;            
+  fin: string;               
 }
 
 export interface RespuestaCotizacionDTO {

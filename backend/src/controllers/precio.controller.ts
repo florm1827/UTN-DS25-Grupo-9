@@ -1,25 +1,60 @@
 import { Request, Response, NextFunction } from "express";
 import { PrecioService } from "../services/precio.service";
-import { ActualizarPrecioDTO, SolicitudCotizacionDTO } from "../types/precio.types";
 
-export const obtenerPrecio = (req: Request, res: Response, next: NextFunction) => {
+/**
+ * GET /api/precios
+ * Devuelve el precio vigente 
+ */
+export const obtenerPrecio = async (_req: Request, res: Response, next: NextFunction) => {
   try {
-    res.json(PrecioService.obtenerVigente());
-  } catch (err) { next(err); }
+    const p = await PrecioService.obtenerVigente();
+    res.json(p);
+  } catch (err) {
+    next(err);
+  }
 };
 
-export const actualizarPrecio = (req: Request, res: Response, next: NextFunction) => {
+/**
+ * PATCH /api/precios
+ * Actualiza el precio vigente (solo ADMIN). Body validado por Zod en middleware.
+ */
+export const actualizarPrecio = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const dto = req.body as ActualizarPrecioDTO;
-    const actualizado = PrecioService.actualizar(dto);
+    const body = (req.validated?.body ?? req.body) as {
+      minutosPorBloque: number;         
+      precioPorBloque: number;
+      moneda?: "ARS" | "USD";
+      vigenteDesde?: string;            
+    };
+
+    const actualizado = await PrecioService.actualizar({
+      minutosPorBloque: 30,             
+      precioPorBloque: body.precioPorBloque,
+      moneda: body.moneda,
+      vigenteDesde: body.vigenteDesde   
+    });
+
     res.json(actualizado);
-  } catch (err) { next(err); }
+  } catch (err) {
+    next(err);
+  }
 };
 
-export const cotizar = (req: Request, res: Response, next: NextFunction) => {
+/**
+ * POST /api/precios/cotizaciones
+ * Calcula cotización para un rango horario.
+ */
+export const cotizar = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const dto = req.body as SolicitudCotizacionDTO;
-    const resp = PrecioService.cotizar(dto);
-    res.json(resp);
-  } catch (err) { next(err); }
+    const body = (req.validated?.body ?? req.body) as {
+      canchaId: string;
+      inicio: string; 
+      fin: string;    
+    };
+
+    const c = PrecioService.cotizar(body);
+    res.json(c);
+  } catch (err) {
+    next(err);
+  }
 };

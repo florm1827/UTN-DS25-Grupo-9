@@ -1,15 +1,21 @@
-// src/controllers/reserva.controller.ts
 import { Request, Response, NextFunction } from "express";
 import { ReservaService } from "../services/reserva.service";
 import { PrecioService } from "../services/precio.service";
 
 export const listarReservas = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    const q = (req.validated?.query ?? req.query) as {
+      fecha?: string;
+      estado?: "PENDIENTE" | "ACEPTADA" | "RECHAZADA" | "CANCELADA";
+      canchaId?: string;
+      mias?: boolean;
+    };
+
     const filtro = {
-      fecha: req.query.fecha?.toString(),
-      estado: req.query.estado as any,          // "PENDIENTE" | "ACEPTADA" | ...
-      canchaId: req.query.canchaId?.toString(),
-      mias: req.query.mias === "true",
+      fecha: q.fecha,
+      estado: q.estado,
+      canchaId: q.canchaId,
+      mias: q.mias === true,
       usuarioId: (req as any).usuario?.id ?? undefined
     };
 
@@ -22,7 +28,7 @@ export const listarReservas = async (req: Request, res: Response, next: NextFunc
 
 export const crearReserva = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const dto = req.body as {
+    const body = (req.validated?.body ?? req.body) as {
       canchaId: string;
       inicio: string;
       fin: string;
@@ -31,15 +37,13 @@ export const crearReserva = async (req: Request, res: Response, next: NextFuncti
 
     const usuarioId = (req as any).usuario?.id;
 
-    // Cotizamos
     const cotizacion = PrecioService.cotizar({
-      canchaId: dto.canchaId,
-      inicio: dto.inicio,
-      fin: dto.fin
+      canchaId: body.canchaId,
+      inicio: body.inicio,
+      fin: body.fin
     });
 
-    // Creamos la solicitud
-    const creada = await ReservaService.crear(dto, usuarioId);
+    const creada = await ReservaService.crear(body, usuarioId);
 
     res.status(201).json({
       id: creada.id,
@@ -54,8 +58,8 @@ export const crearReserva = async (req: Request, res: Response, next: NextFuncti
 
 export const actualizarEstadoReserva = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { id } = req.params;
-    const body = req.body as {
+    const params = (req.validated?.params ?? req.params) as { id: string };
+    const body = (req.validated?.body ?? req.body) as {
       estado: "ACEPTADA" | "RECHAZADA" | "CANCELADA";
       motivoRechazo?: string;
     };
@@ -63,7 +67,7 @@ export const actualizarEstadoReserva = async (req: Request, res: Response, next:
     const actorId = (req as any).usuario?.id;
     const esAdmin = (req as any).usuario?.rol === "ADMIN";
 
-    const r = await ReservaService.actualizarEstado(id, body.estado, actorId, esAdmin);
+    const r = await ReservaService.actualizarEstado(params.id, body.estado, actorId, esAdmin);
     res.json(r);
   } catch (err) {
     next(err);
