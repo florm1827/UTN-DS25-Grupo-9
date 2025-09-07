@@ -1,59 +1,71 @@
 // src/controllers/reserva.controller.ts
 import { Request, Response, NextFunction } from "express";
 import { ReservaService } from "../services/reserva.service";
-import {
-  ActualizarEstadoReservaDTO,
-  CrearReservaDTO,
-  FiltroReservas
-} from "../types/reserva.types";
-import { PrecioService } from "../services/precio.service"; // ⬅️ nuevo
+import { PrecioService } from "../services/precio.service";
 
-export const listarReservas = (req: Request, res: Response, next: NextFunction) => {
+export const listarReservas = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const filtro: FiltroReservas = {
+    const filtro = {
       fecha: req.query.fecha?.toString(),
-      estado: req.query.estado as any,
+      estado: req.query.estado as any,          // "PENDIENTE" | "ACEPTADA" | ...
       canchaId: req.query.canchaId?.toString(),
       mias: req.query.mias === "true",
-      usuarioId: (req as any).usuario?.id
+      usuarioId: (req as any).usuario?.id ?? undefined
     };
-    const data = ReservaService.listar(filtro);
+
+    const data = await ReservaService.listar(filtro);
     res.json(data);
-  } catch (err) { next(err); }
+  } catch (err) {
+    next(err);
+  }
 };
 
-export const crearReserva = (req: Request, res: Response, next: NextFunction) => {
+export const crearReserva = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const dto = req.body as CrearReservaDTO;
+    const dto = req.body as {
+      canchaId: string;
+      inicio: string;
+      fin: string;
+      nombreMostrar: string;
+    };
+
     const usuarioId = (req as any).usuario?.id;
 
-    // 1) Cotizamos (valida rango y múltiplos de 30’)
+    // Cotizamos
     const cotizacion = PrecioService.cotizar({
       canchaId: dto.canchaId,
       inicio: dto.inicio,
       fin: dto.fin
     });
 
-    // 2) Creamos la solicitud (re-valida solapes con ACEPTADAS, etc.)
-    const creada = ReservaService.crear(dto, usuarioId);
+    // Creamos la solicitud
+    const creada = await ReservaService.crear(dto, usuarioId);
 
-    // 3) Devolvemos la cotización + mensaje
     res.status(201).json({
       id: creada.id,
       estado: creada.estado,
-      cotizacion, // ⬅️ incluimos bloques, total, moneda, etc.
+      cotizacion,
       mensaje: "Solicitud creada correctamente"
     });
-  } catch (err) { next(err); }
+  } catch (err) {
+    next(err);
+  }
 };
 
-export const actualizarEstadoReserva = (req: Request, res: Response, next: NextFunction) => {
+export const actualizarEstadoReserva = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
-    const dto = req.body as ActualizarEstadoReservaDTO;
+    const body = req.body as {
+      estado: "ACEPTADA" | "RECHAZADA" | "CANCELADA";
+      motivoRechazo?: string;
+    };
+
     const actorId = (req as any).usuario?.id;
     const esAdmin = (req as any).usuario?.rol === "ADMIN";
-    const r = ReservaService.actualizarEstado(id, dto, actorId, esAdmin);
+
+    const r = await ReservaService.actualizarEstado(id, body.estado, actorId, esAdmin);
     res.json(r);
-  } catch (err) { next(err); }
+  } catch (err) {
+    next(err);
+  }
 };

@@ -10,22 +10,22 @@ import bcrypt from "bcryptjs";
 import { UsuarioModel } from "./models/usuario.model";
 import { disponibilidadRoutes } from "./routes/disponibilidad.routes";
 
-(async () => {
-  const email = "admin@demo.com";
-  if (!UsuarioModel.obtenerPorEmail(email)) {
-    const hash = await bcrypt.hash("admin123", 10);
-    UsuarioModel.crear({
-      id: "admin-1",
-      nombre: "Admin",
-      email,
-      rol: "ADMIN",
-      contraseniaHash: hash,
-      creadoEn: new Date().toISOString(),
-      actualizadoEn: new Date().toISOString()
-    });
-    console.log("✅ Usuario ADMIN sembrado (admin@demo.com / admin123)");
-  }
-})();
+// (async () => {
+//   const email = "admin@demo.com";
+//   if (!UsuarioModel.obtenerPorEmail(email)) {
+//     const hash = await bcrypt.hash("admin123", 10);
+//     UsuarioModel.crear({
+//       id: "admin-1",
+//       nombre: "Admin",
+//       email,
+//       rol: "ADMIN",
+//       contraseniaHash: hash,
+//       creadoEn: new Date().toISOString(),
+//       actualizadoEn: new Date().toISOString()
+//     });
+//     console.log("✅ Usuario ADMIN sembrado (admin@demo.com / admin123)");
+//   }
+// })();
 
 const app = express();
 const PORT = 3000;
