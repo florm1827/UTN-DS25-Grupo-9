@@ -1,13 +1,16 @@
+import * as React from 'react'
+import AppBar from '@mui/material/AppBar'
+import Box from '@mui/material/Box'
+import Toolbar from '@mui/material/Toolbar'
+import Button from '@mui/material/Button'
+import { Link, useNavigate } from 'react-router-dom'
+import LoginIcon from '@mui/icons-material/AccountCircle'
+import { useAuth } from '../context/AuthContext.jsx'
 
-import * as React from 'react';
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-import Button from '@mui/material/Button';
-import { Link } from 'react-router-dom';
-import LoginIcon from '@mui/icons-material/AccountCircle';
+export default function Header() {
+  const { user, logout } = useAuth()
+  const navigate = useNavigate()
 
-export default function ButtonAppBar() {
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar
@@ -16,7 +19,7 @@ export default function ButtonAppBar() {
         sx={{
           boxShadow: 3,
           bgcolor: 'black',
-          height: '75px'
+          height: '75px',
         }}
       >
         <Toolbar
@@ -27,10 +30,10 @@ export default function ButtonAppBar() {
             alignItems: 'center',
             justifyContent: 'space-between',
             px: 2,
-            position: 'relative'
+            position: 'relative',
           }}
         >
-          {/* <Button component={Link} to="/reg" color="inherit">Registrarse</Button> */}
+          {/* LOGO CENTRADO */}
           <Box
             sx={{
               position: 'absolute',
@@ -50,20 +53,47 @@ export default function ButtonAppBar() {
                   height: 60,
                   width: 60,
                   borderRadius: '50%',
-                  marginTop: '3px'
+                  marginTop: '3px',
                 }}
               />
             </Link>
           </Box>
-          <Box sx={{ display: 'flex', gap: 2, marginLeft:'auto' }}>
-            <Button component={Link} to="/log" color="inherit" endIcon={
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <LoginIcon sx={{ fontSize: 50 }} />
-              </Box>
-            }>Iniciar sesión</Button>
+
+          {/* BOTONES DERECHA */}
+          <Box sx={{ display: 'flex', gap: 2, marginLeft: 'auto' }}>
+            {/* 👇 solo ADMIN ve este botón */}
+            {user?.rol === 'ADMIN' && (
+              <Button
+                variant="outlined"
+                color="inherit"
+                onClick={() => navigate('/admin')}
+              >
+                Admin
+              </Button>
+            )}
+
+            {/* login / logout */}
+            {!user ? (
+              <Button
+                component={Link}
+                to="/log"
+                color="inherit"
+                endIcon={
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <LoginIcon sx={{ fontSize: 50 }} />
+                  </Box>
+                }
+              >
+                Iniciar sesión
+              </Button>
+            ) : (
+              <Button color="inherit" onClick={logout}>
+                Cerrar sesión
+              </Button>
+            )}
           </Box>
         </Toolbar>
       </AppBar>
     </Box>
-  );
+  )
 }
