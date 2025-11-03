@@ -8,21 +8,21 @@ import { Link } from 'react-router-dom';
 const images = [
   {
     url: 'https://cdn.pixabay.com/photo/2014/09/12/20/15/tennis-court-443267_960_720.jpg',
-    title: 'Alquier',
+    title: 'Alquiler',
     width: '33%',
     link: '/alq', 
   },
   {
     url: 'https://cdn.wallpapersafari.com/70/36/9ZKge6.jpg',
-    title: 'Entrenamientos',
+    title: 'Solicitudes Reservas',
     width: '34%',
-    link: '/',
+    link: '/notificaciones',
   },
   {
     url: 'https://www.thetennismom.com/wp-content/uploads/2019/07/Depositphotos_156620498_xl-2015.jpg',
     title: 'Nosotros',
     width: '33%',
-    link: '/',
+    link: '/nos',
   },
 ];
 

@@ -5,14 +5,22 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 // prisma/schema.prisma
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
-}
 
 generator client {
   provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum EstadoReserva {
+  PENDIENTE
+  ACEPTADA
+  RECHAZADA
+  CANCELADA
 }
 
 model Usuario {
@@ -27,13 +35,15 @@ model Usuario {
 }
 
 model Reserva {
-  id         Int      @id @default(autoincrement())
+  id         Int           @id @default(autoincrement())
   cancha     String
   horaInicio String
   horaFin    String
   nombre     String
   fecha      DateTime
+  estado     EstadoReserva @default(PENDIENTE) 
+  comentario String?       
   usuarioId  Int
-  usuario    Usuario  @relation(fields: [usuarioId], references: [id])
-  createdAt  DateTime @default(now())
+  usuario    Usuario       @relation(fields: [usuarioId], references: [id])
+  createdAt  DateTime      @default(now())
 }
