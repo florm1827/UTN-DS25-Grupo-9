@@ -8,8 +8,9 @@
     "build": "echo 'no build needed for JS'",
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
+    "postinstall": "npx prisma generate",
     "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev"
+    "prisma:migrate": "prisma migrate deploy"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
