@@ -9,7 +9,7 @@ import Register from './pages/Register';
 import CssBaseline from '@mui/material/CssBaseline';
 import Nosotros from './pages/Nosotros';
 import Notificaciones from './pages/Notificaciones.jsx'
-import AdminTurnos from './pages/Adminturnos.jsx';
+import AdminTurnos from './pages/AdminTurnos.jsx';
 
 function App() {
     return (
