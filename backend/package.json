@@ -10,6 +10,7 @@
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
     "prisma:generate": "prisma generate",
+    "postinstall": "npm run prisma:generate",
     "prisma:migrate": "prisma migrate dev"
   },
   "dependencies": {
