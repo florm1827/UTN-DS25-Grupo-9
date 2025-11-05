@@ -1,4 +1,4 @@
-const API_URL = "https://utn-ds25-grupo-9.onrender.com/api"; // backend
+const API_URL = import.meta.env.VITE_API_URL;
 
 export const registerUser = async (userData) => {
   const res = await fetch(`${API_URL}/auth/register`, {
