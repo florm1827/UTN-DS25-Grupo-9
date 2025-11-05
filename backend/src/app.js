@@ -19,5 +19,8 @@ app.use(express.json())
 // rutas
 app.use('/api/auth', authRoutes)
 app.use('/api/reservas', reservasRoutes)
+app.get('/', (req, res) => {
+  res.send('Backend funcionando ✅');
+});
 
 export default app
