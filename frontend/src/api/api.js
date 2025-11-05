@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:3000/api"; // backend
+const API_URL = "https://utn-ds25-grupo-9.onrender.com/api"; // backend
 
 export const registerUser = async (userData) => {
   const res = await fetch(`${API_URL}/auth/register`, {
