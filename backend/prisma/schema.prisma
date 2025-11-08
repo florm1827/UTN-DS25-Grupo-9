@@ -26,11 +26,12 @@ model Reserva {
   horaFin    String
   nombre     String
   fecha      DateTime
-  usuarioId  Int
-  createdAt  DateTime      @default(now())
   estado     EstadoReserva @default(PENDIENTE)
   comentario String?
+  tipo       TipoReserva   @default(RESERVA) 
+  usuarioId  Int
   usuario    Usuario       @relation(fields: [usuarioId], references: [id])
+  createdAt  DateTime      @default(now())
 }
 
 enum EstadoReserva {
@@ -38,4 +39,13 @@ enum EstadoReserva {
   ACEPTADA
   RECHAZADA
   CANCELADA
+}
+
+enum TipoReserva {
+  RESERVA
+  TURNO_FIJO
+  CLASE
+  ESCUELA
+  TORNEO
+  MANTENIMIENTO
 }

@@ -1,102 +1,136 @@
-import * as React from 'react';
-import Box from '@mui/material/Box';
-import { DataGrid } from '@mui/x-data-grid';
-import { styled } from '@mui/material/styles';
+import React, { useMemo } from 'react'
+import { Box, Paper, Typography, Table, TableHead, TableBody, TableRow, TableCell, Tooltip, Chip, Stack, Divider } from '@mui/material'
 
-const horas = [
-  '08:00','08:30', '09:00','09:30', '10:00','10:30', '11:00','11:30', '12:00','12:30', '13:00','13:30', '14:00','14:30',
-  '15:00','15:30', '16:00','16:30', '17:00','17:30', '18:00','18:30', '19:00','19:30', '20:00','20:30', '21:00','21:30',
-  '22:00','22:30', '23:00','23:30', '24:00',
-];
+const CANCHAS = ['cancha1','cancha2','cancha3','cancha4','cancha5','cancha6','cancha7','cancha8']
 
-const canchas = [
-  'cancha1', 'cancha2', 'cancha3', 'cancha4',
-  'cancha5', 'cancha6', 'cancha7', 'cancha8'
-];
-
-// 🔴 Celda reservada (estilo rojo con nombre)
-const ReservedCell = styled('div')({
-  backgroundColor: '#e53935',
-  color: '#fff',
-  fontWeight: 'bold',
-  width: '100%',
-  height: '100%',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  borderRadius: 4,
-});
-
-// 🔄 Generar filas en función de las reservas
-function generarFilasConReservas(reservas = []) {
-  return horas.map((hora, idx) => {
-    const row = { id: idx, hora };
-
-    canchas.forEach((cancha) => {
-      const reserva = reservas.find(
-        (r) => r.cancha === cancha && hora >= r.horaInicio && hora < r.horaFin
-      );
-
-      row[cancha] = reserva
-        ? { nombre: reserva.nombre, reservado: true }
-        : { nombre: '', reservado: false };
-    });
-
-    return row;
-  });
+// colores suaves por tipo
+const TIPO_BG = {
+  RESERVA: '#e3f2fd',        // celeste muy suave
+  TURNO_FIJO: '#ede7f6',     // violeta muy suave
+  CLASE: '#e8f5e9',          // verde muy suave
+  ESCUELA: '#fff3e0',        // naranja muy suave
+  TORNEO: '#ffebee',         // rojo muy suave
+  MANTENIMIENTO: '#eeeeee',  // gris claro
+}
+const TIPO_FG = {
+  RESERVA: '#0d47a1',
+  TURNO_FIJO: '#4a148c',
+  CLASE: '#1b5e20',
+  ESCUELA: '#e65100',
+  TORNEO: '#b71c1c',
+  MANTENIMIENTO: '#424242',
 }
 
-export default function Grilla({ reservas = [] }) {
-  const rows = generarFilasConReservas(reservas);
+// genera franjas cada 30'
+const genSlots = () => {
+  const slots = []
+  for (let h = 8; h <= 22; h++) {
+    const hh = String(h).padStart(2, '0')
+    slots.push(`${hh}:00`)
+    if (h !== 22) slots.push(`${hh}:30`)
+  }
+  return slots
+}
+const SLOTS = genSlots()
 
-  const columns = [
-    {
-      field: 'hora',
-      headerName: 'Hora',
-      width: 90,
-      sortable: false,
-    },
-    ...canchas.map((cancha) => ({
-      field: cancha,
-      headerName: cancha.toUpperCase(),
-      width: 130,
-      sortable: false,
-      renderCell: (params) =>
-        params.value?.reservado ? (
-          <ReservedCell>{params.value.nombre}</ReservedCell>
-        ) : (
-          ''
-        ),
-    })),
-  ];
+const slotOcupado = (slot, inicio, fin) => slot >= inicio && slot < fin
+
+export default function Grilla({ reservas = [], fecha }) {
+  const reservasPorCancha = useMemo(() => {
+    const map = new Map()
+    for (const c of CANCHAS) map.set(c, [])
+    for (const r of reservas) {
+      if (!map.has(r.cancha)) map.set(r.cancha, [])
+      map.get(r.cancha).push(r)
+    }
+    for (const c of CANCHAS) map.get(c)?.sort((a,b)=>a.horaInicio.localeCompare(b.horaInicio))
+    return map
+  }, [reservas])
 
   return (
-    <Box
-      sx={{
-        width: '100%',
-        maxWidth: '100vw',
-        overflowX: 'auto',
-        mt: 4,
-        px: 2,
-        display: 'flex',
-        justifyContent: 'center',
-      }}
-    >
-      <Box sx={{ width: '100%'}}>
-        <DataGrid
-          rows={rows}
-          columns={columns}
-          hideFooter
-          disableColumnMenu
-          autoHeight
-          sx={{
-            backgroundColor: '#fafafa',
-            border: '1px solid #ccc',
-            borderRadius: 2,
-            boxShadow: 2,
-          }}
-        />
+    <Paper elevation={3} sx={{ p: 2, height: 'calc(100vh - 180px)', display: 'flex', flexDirection: 'column' }}>
+      <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1, flexWrap: 'wrap', gap: 1 }}>
+        <Typography variant="h6">Disponibilidad — {fecha}</Typography>
+        <Stack direction="row" spacing={1} alignItems="center">
+          <Chip size="small" label="Reserva" sx={{ bgcolor: TIPO_BG.RESERVA, color: TIPO_FG.RESERVA }} />
+          <Chip size="small" label="Turno fijo" sx={{ bgcolor: TIPO_BG.TURNO_FIJO, color: TIPO_FG.TURNO_FIJO }} />
+          <Chip size="small" label="Clase" sx={{ bgcolor: TIPO_BG.CLASE, color: TIPO_FG.CLASE }} />
+          <Chip size="small" label="Escuela" sx={{ bgcolor: TIPO_BG.ESCUELA, color: TIPO_FG.ESCUELA }} />
+          <Chip size="small" label="Torneo" sx={{ bgcolor: TIPO_BG.TORNEO, color: TIPO_FG.TORNEO }} />
+          <Chip size="small" label="Mantenimiento" sx={{ bgcolor: TIPO_BG.MANTENIMIENTO, color: TIPO_FG.MANTENIMIENTO }} />
+        </Stack>
+      </Stack>
+      <Divider sx={{ mb: 2 }} />
+
+      <Box sx={{ flex: 1, overflow: 'auto' }}>
+        <Table size="small" stickyHeader sx={{ minWidth: 900 }}>
+          <TableHead>
+            <TableRow>
+              <TableCell sx={{ position: 'sticky', left: 0, zIndex: 2, bgcolor: 'background.paper', minWidth: 80, fontWeight: 600 }}>Hora</TableCell>
+              {CANCHAS.map((c) => (
+                <TableCell key={c} align="center" sx={{ fontWeight: 600, whiteSpace: 'nowrap', minWidth: 110, textTransform: 'uppercase' }}>
+                  {c}
+                </TableCell>
+              ))}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {SLOTS.map((slot) => (
+              <TableRow key={slot} hover>
+                <TableCell sx={{ position: 'sticky', left: 0, zIndex: 1, bgcolor: 'background.paper', fontWeight: 500 }}>
+                  {slot}
+                </TableCell>
+                {CANCHAS.map((cancha) => {
+                  const lista = reservasPorCancha.get(cancha) || []
+                  const r = lista.find((res) => slotOcupado(slot, res.horaInicio, res.horaFin))
+                  const ocupado = Boolean(r)
+                  const bg = ocupado ? (TIPO_BG[r.tipo] || '#e0f7fa') : '#f5f5f5'
+                  const fg = ocupado ? (TIPO_FG[r.tipo] || '#006064') : 'transparent'
+                  return (
+                    <TableCell key={cancha + slot} align="center" sx={{ p: 0.5 }}>
+                      {ocupado ? (
+                        <Tooltip
+                          title={
+                            <Box>
+                              <Typography variant="caption">{r.horaInicio}–{r.horaFin} • {cancha.toUpperCase()}</Typography>
+                              <Typography variant="caption" sx={{ display: 'block' }}>{r.tipo}</Typography>
+                              {r.nombre && <Typography variant="caption" color="text.secondary">{r.nombre}</Typography>}
+                            </Box>
+                          }
+                          arrow
+                        >
+                          <Box sx={{
+                            bgcolor: bg,
+                            color: fg,
+                            borderRadius: 1,
+                            height: 28,
+                            lineHeight: '28px',
+                            fontSize: 12,
+                            fontWeight: 600,
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            px: 0.5,
+                          }}>
+                            {r.tipo.replace('_',' ')}
+                          </Box>
+                        </Tooltip>
+                      ) : (
+                        <Box sx={{ bgcolor: '#f5f5f5', borderRadius: 1, height: 28 }} />
+                      )}
+                    </TableCell>
+                  )
+                })}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </Box>
-    </Box>
-  );
+
+      {(!reservas || reservas.length === 0) && (
+        <Box sx={{ mt: 2, textAlign: 'center', color: 'text.secondary' }}>
+          <Typography variant="body2">No hay reservas aceptadas para este día todavía.</Typography>
+        </Box>
+      )}
+    </Paper>
+  )
 }

@@ -10,7 +10,7 @@ import {
   aceptarReserva,
   rechazarReserva,
   listarMisReservas,
-  cancelarMiReserva,
+  cancelarMiReservaPendiente,
   listarAceptadasAdmin,
   actualizarReservaAdmin,
   bajaReservaAdmin,
@@ -28,7 +28,7 @@ router.get('/', authRequired(), listarReservasAceptadas)
 router.get('/mias', authRequired(), listarMisReservas)
 
 // USER: cancelar su PENDIENTE
-router.patch('/mias/:id/cancelar', authRequired(), cancelarMiReserva)
+router.patch('/mias/:id/cancelar', authRequired(), cancelarMiReservaPendiente)
 
 // ADMIN: ver PENDIENTES
 router.get('/pendientes', authRequired(['ADMIN']), listarPendientes)

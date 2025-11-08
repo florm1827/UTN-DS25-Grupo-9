@@ -1,294 +1,220 @@
-// src/controllers/reservas.controller.js
 import prisma from '../lib/prisma.js'
 
-// helpers
-function getDayRange(fechaStr) {
-  const start = new Date(fechaStr)
-  start.setHours(0, 0, 0, 0)
-  const end = new Date(fechaStr)
-  end.setHours(23, 59, 59, 999)
+// -------- Helpers
+const getDayRange = (fechaStr) => {
+  // fechaStr: "YYYY-MM-DD"
+  const start = new Date(`${fechaStr}T00:00:00.000Z`)
+  const end = new Date(`${fechaStr}T23:59:59.999Z`)
   return { start, end }
 }
 
-// chequea si hay solapamiento con ACEPTADAS para ese día/cancha
-async function haySolapamientoAceptadas({ cancha, fecha, horaInicio, horaFin, excluirId = null }) {
-  const { start, end } = getDayRange(fecha)
+const overlaps = (aStart, aEnd, bStart, bEnd) => (aStart < bEnd && aEnd > bStart)
 
-  const aceptadas = await prisma.reserva.findMany({
+const haySolapamientoAceptadas = async ({ cancha, fecha, horaInicio, horaFin, excluirId }) => {
+  const { start, end } = getDayRange(fecha)
+  const list = await prisma.reserva.findMany({
     where: {
       cancha,
       estado: 'ACEPTADA',
-      fecha: {
-        gte: start,
-        lte: end,
-      },
-      ...(excluirId ? { NOT: { id: excluirId } } : {}),
-    },
+      fecha: { gte: start, lte: end },
+      ...(excluirId ? { NOT: { id: Number(excluirId) } } : {}),
+    }
   })
-
-  return aceptadas.some((r) => horaInicio < r.horaFin && horaFin > r.horaInicio)
+  return list.some(r => overlaps(horaInicio, horaFin, r.horaInicio, r.horaFin))
 }
 
-// USER: crea solicitud de reserva (queda PENDIENTE) pero valida contra ACEPTADAS
+// -------- Permisos de tipo
+const TIPOS_USER = ['RESERVA', 'TURNO_FIJO']
+const TIPOS_ADMIN = ['RESERVA', 'TURNO_FIJO', 'CLASE', 'ESCUELA', 'TORNEO', 'MANTENIMIENTO']
+
+// -------- Controllers
+
+// Crear solicitud (USER/ADMIN)
 export const crearReserva = async (req, res) => {
   try {
-    const { cancha, horaInicio, horaFin, nombre, fecha } = req.body
+    const { cancha, horaInicio, horaFin, nombre, fecha, tipo: tipoIn } = req.body
+    if (!fecha) return res.status(400).json({ ok:false, msg:'La fecha es obligatoria' })
 
-    if (!fecha) {
-      return res.status(400).json({ ok: false, msg: 'La fecha es obligatoria' })
-    }
+    const isAdmin = req.user?.rol === 'ADMIN'
+    const allowed = isAdmin ? TIPOS_ADMIN : TIPOS_USER
+    const tipo = allowed.includes(tipoIn) ? tipoIn : 'RESERVA'
+    const nombreFinal = isAdmin ? (nombre || 'Reserva') : (req.user?.nombre || 'Reserva')
 
-    const existeSolape = await haySolapamientoAceptadas({
-      cancha,
-      fecha,
-      horaInicio,
-      horaFin,
-    })
-
-    if (existeSolape) {
-      return res.status(400).json({
-        ok: false,
-        msg: 'Ya existe una reserva aceptada para esa cancha y horario.',
-      })
-    }
+    // Validación de solapamiento contra ACEPTADAS
+    const existeSolape = await haySolapamientoAceptadas({ cancha, fecha, horaInicio, horaFin })
+    if (existeSolape) return res.status(400).json({ ok:false, msg:'Ya existe una reserva aceptada para esa cancha y horario.' })
 
     const reserva = await prisma.reserva.create({
       data: {
-        cancha,
-        horaInicio,
-        horaFin,
-        nombre,
+        cancha, horaInicio, horaFin,
+        nombre: nombreFinal,
         fecha: new Date(fecha),
+        tipo,
         usuarioId: req.user.id,
       },
     })
-
-    return res.status(201).json({
-      ok: true,
-      msg: 'Solicitud enviada. Esperando aprobación del administrador.',
-      reserva,
-    })
+    return res.status(201).json({ ok:true, msg:'Solicitud enviada. Esperando aprobación del administrador.', reserva })
   } catch (err) {
     console.error(err)
-    return res.status(500).json({ ok: false, msg: 'Error al crear la reserva' })
+    return res.status(500).json({ ok:false, msg:'Error al crear la reserva' })
   }
 }
 
-// USER: ver solo ACEPTADAS (para la grilla) — con ?fecha=
+// Listar ACEPTADAS (público autenticado, filtra por fecha; usado por grilla)
 export const listarReservasAceptadas = async (req, res) => {
   try {
-    const { fecha } = req.query
-    const where = {
-      estado: 'ACEPTADA',
-    }
-
-    if (fecha) {
-      const { start, end } = getDayRange(fecha)
-      where.fecha = {
-        gte: start,
-        lte: end,
-      }
-    }
-
+    const { fecha, cancha } = req.query
+    if (!fecha) return res.json({ ok:true, reservas: [] })
+    const { start, end } = getDayRange(fecha)
     const reservas = await prisma.reserva.findMany({
-      where,
-      orderBy: [
-        { fecha: 'asc' },
-        { horaInicio: 'asc' },
-      ],
+      where: {
+        estado: 'ACEPTADA',
+        fecha: { gte: start, lte: end },
+        ...(cancha ? { cancha } : {}),
+      },
+      include: { usuario: { select: { id:true, nombre:true, email:true } } },
+      orderBy: [{ cancha: 'asc' }, { horaInicio: 'asc' }]
     })
-
-    return res.json({ ok: true, reservas })
+    return res.json({ ok:true, reservas })
   } catch (err) {
     console.error(err)
-    return res.status(500).json({ ok: false, msg: 'Error al obtener reservas' })
+    return res.status(500).json({ ok:false, msg:'Error al listar reservas aceptadas' })
   }
 }
 
-// USER: ver MIS reservas (todas)
+// Mis reservas / notificaciones
 export const listarMisReservas = async (req, res) => {
   try {
     const reservas = await prisma.reserva.findMany({
       where: { usuarioId: req.user.id },
-      orderBy: [
-        { fecha: 'desc' },
-        { createdAt: 'desc' },
-      ],
+      orderBy: [{ fecha: 'desc' }, { horaInicio: 'asc' }]
     })
-    return res.json({ ok: true, reservas })
+    return res.json({ ok:true, reservas })
   } catch (err) {
     console.error(err)
-    return res.status(500).json({ ok: false, msg: 'Error al obtener tus reservas' })
+    return res.status(500).json({ ok:false, msg:'Error al listar mis reservas' })
   }
 }
 
-// USER: cancelar su propia solicitud (solo si está PENDIENTE)
-export const cancelarMiReserva = async (req, res) => {
-  const { id } = req.params
+export const cancelarMiReservaPendiente = async (req, res) => {
   try {
-    const reserva = await prisma.reserva.findUnique({
-      where: { id: Number(id) },
-    })
-
-    if (!reserva || reserva.usuarioId !== req.user.id) {
-      return res.status(404).json({ ok: false, msg: 'Reserva no encontrada' })
-    }
-
-    if (reserva.estado !== 'PENDIENTE') {
-      return res
-        .status(400)
-        .json({ ok: false, msg: 'Solo se pueden cancelar reservas pendientes' })
-    }
-
-    const actualizada = await prisma.reserva.update({
-      where: { id: Number(id) },
-      data: { estado: 'CANCELADA' },
-    })
-
-    return res.json({ ok: true, msg: 'Solicitud cancelada', reserva: actualizada })
+    const { id } = req.params
+    const r = await prisma.reserva.findUnique({ where: { id: Number(id) } })
+    if (!r || r.usuarioId !== req.user.id) return res.status(404).json({ ok:false, msg:'Reserva no encontrada' })
+    if (r.estado !== 'PENDIENTE') return res.status(400).json({ ok:false, msg:'Solo podés cancelar solicitudes pendientes' })
+    await prisma.reserva.update({ where: { id: r.id }, data: { estado: 'CANCELADA' } })
+    return res.json({ ok:true, msg:'Solicitud cancelada' })
   } catch (err) {
     console.error(err)
-    return res.status(500).json({ ok: false, msg: 'Error al cancelar la reserva' })
+    return res.status(500).json({ ok:false, msg:'Error al cancelar solicitud' })
   }
 }
 
-// ADMIN: ver solicitudes pendientes (con filtros)
+// Admin: pendientes con filtros
 export const listarPendientes = async (req, res) => {
   try {
-    const { fecha, cancha } = req.query
+    const { fecha, cancha, nombre } = req.query
     const where = { estado: 'PENDIENTE' }
-
     if (fecha) {
       const { start, end } = getDayRange(fecha)
       where.fecha = { gte: start, lte: end }
     }
-    if (cancha) {
-      where.cancha = cancha
-    }
+    if (cancha) where.cancha = cancha
+    if (nombre) where.nombre = { contains: nombre, mode: 'insensitive' }
 
     const reservas = await prisma.reserva.findMany({
       where,
-      include: {
-        usuario: { select: { id: true, nombre: true, email: true } },
-      },
-      orderBy: { createdAt: 'desc' },
+      include: { usuario: { select: { id:true, nombre:true, email:true } } },
+      orderBy: [{ fecha: 'asc' }, { horaInicio: 'asc' }]
     })
-
-    return res.json({ ok: true, reservas })
+    return res.json({ ok:true, reservas })
   } catch (err) {
-    return res.status(500).json({ ok: false, msg: 'Error al obtener pendientes' })
+    console.error(err)
+    return res.status(500).json({ ok:false, msg:'Error al listar pendientes' })
   }
 }
 
-// ADMIN: ver TODOS los turnos aceptados (con filtros)
+// Admin: aceptar (con revalidación de solape)
+export const aceptarReserva = async (req, res) => {
+  try {
+    const { id } = req.params
+    const { comentario } = req.body
+    const r = await prisma.reserva.findUnique({ where: { id: Number(id) } })
+    if (!r) return res.status(404).json({ ok:false, msg:'Reserva no encontrada' })
+    if (r.estado !== 'PENDIENTE') return res.status(400).json({ ok:false, msg:'La reserva no está pendiente' })
+
+    const fechaStr = r.fecha.toISOString().slice(0,10)
+    const existeSolape = await haySolapamientoAceptadas({
+      cancha: r.cancha, fecha: fechaStr, horaInicio: r.horaInicio, horaFin: r.horaFin, excluirId: r.id
+    })
+    if (existeSolape) return res.status(400).json({ ok:false, msg:'Solapamiento: ya hay una reserva aceptada en ese horario.' })
+
+    const upd = await prisma.reserva.update({
+      where: { id: r.id },
+      data: { estado: 'ACEPTADA', comentario: comentario ?? r.comentario }
+    })
+    return res.json({ ok:true, msg:'Reserva aceptada', reserva: upd })
+  } catch (err) {
+    console.error(err)
+    return res.status(500).json({ ok:false, msg:'Error al aceptar' })
+  }
+}
+
+// Admin: rechazar
+export const rechazarReserva = async (req, res) => {
+  try {
+    const { id } = req.params
+    const { comentario } = req.body
+    const r = await prisma.reserva.findUnique({ where: { id: Number(id) } })
+    if (!r) return res.status(404).json({ ok:false, msg:'Reserva no encontrada' })
+    if (r.estado !== 'PENDIENTE') return res.status(400).json({ ok:false, msg:'La reserva no está pendiente' })
+    const upd = await prisma.reserva.update({
+      where: { id: r.id },
+      data: { estado: 'RECHAZADA', comentario: comentario ?? r.comentario }
+    })
+    return res.json({ ok:true, msg:'Reserva rechazada', reserva: upd })
+  } catch (err) {
+    console.error(err)
+    return res.status(500).json({ ok:false, msg:'Error al rechazar' })
+  }
+}
+
+// Admin: lista de aceptadas con filtros + edición y baja
 export const listarAceptadasAdmin = async (req, res) => {
   try {
     const { fecha, cancha, nombre } = req.query
-    const where = {
-      estado: 'ACEPTADA',
-    }
-
+    const where = { estado: 'ACEPTADA' }
     if (fecha) {
       const { start, end } = getDayRange(fecha)
       where.fecha = { gte: start, lte: end }
     }
+    if (cancha) where.cancha = cancha
+    if (nombre) where.nombre = { contains: nombre, mode: 'insensitive' }
 
-    if (cancha) {
-      where.cancha = cancha
-    }
-
-    // nombre puede ser el nombre de la reserva o el nombre del usuario
-    let reservas = await prisma.reserva.findMany({
+    const reservas = await prisma.reserva.findMany({
       where,
-      include: {
-        usuario: { select: { id: true, nombre: true, email: true } },
-      },
-      orderBy: [
-        { fecha: 'desc' },
-        { horaInicio: 'asc' },
-      ],
+      include: { usuario: { select: { id:true, nombre:true, email:true } } },
+      orderBy: [{ fecha: 'asc' }, { horaInicio: 'asc' }]
     })
-
-    if (nombre) {
-      const n = nombre.toLowerCase()
-      reservas = reservas.filter(
-        (r) =>
-          r.nombre.toLowerCase().includes(n) ||
-          r.usuario?.nombre?.toLowerCase().includes(n) ||
-          r.usuario?.email?.toLowerCase().includes(n)
-      )
-    }
-
-    return res.json({ ok: true, reservas })
+    return res.json({ ok:true, reservas })
   } catch (err) {
     console.error(err)
-    return res.status(500).json({ ok: false, msg: 'Error al obtener aceptadas' })
+    return res.status(500).json({ ok:false, msg:'Error al listar aceptadas' })
   }
 }
 
-// ADMIN: aceptar (revalida solapamiento)
-export const aceptarReserva = async (req, res) => {
-  const { id } = req.params
-  const { comentario } = req.body || {}
-
-  try {
-    const reserva = await prisma.reserva.findUnique({ where: { id: Number(id) } })
-    if (!reserva) {
-      return res.status(404).json({ ok: false, msg: 'Reserva no encontrada' })
-    }
-
-    const existeSolape = await haySolapamientoAceptadas({
-      cancha: reserva.cancha,
-      fecha: reserva.fecha.toISOString().slice(0, 10),
-      horaInicio: reserva.horaInicio,
-      horaFin: reserva.horaFin,
-      excluirId: reserva.id,
-    })
-
-    if (existeSolape) {
-      return res.status(400).json({
-        ok: false,
-        msg: 'No se puede aceptar: ya hay una reserva aceptada en ese horario.',
-      })
-    }
-
-    const actualizada = await prisma.reserva.update({
-      where: { id: Number(id) },
-      data: { estado: 'ACEPTADA', comentario },
-    })
-
-    return res.json({ ok: true, msg: 'Reserva aceptada', reserva: actualizada })
-  } catch (err) {
-    console.error(err)
-    return res.status(500).json({ ok: false, msg: 'Error al aceptar la reserva' })
-  }
-}
-
-// ADMIN: rechazar con comentario
-export const rechazarReserva = async (req, res) => {
-  const { id } = req.params
-  const { comentario } = req.body || {}
-
-  try {
-    const reserva = await prisma.reserva.update({
-      where: { id: Number(id) },
-      data: { estado: 'RECHAZADA', comentario },
-    })
-    return res.json({ ok: true, msg: 'Reserva rechazada', reserva })
-  } catch (err) {
-    return res.status(500).json({ ok: false, msg: 'Error al rechazar la reserva' })
-  }
-}
-
-// ADMIN: modificar una aceptada (cambiar cancha/hora/fecha/nombre) con validación de solape
 export const actualizarReservaAdmin = async (req, res) => {
   const { id } = req.params
-  const { cancha, fecha, horaInicio, horaFin, nombre, comentario } = req.body
-
+  const { cancha, fecha, horaInicio, horaFin, nombre, comentario, tipo } = req.body
   try {
     const reserva = await prisma.reserva.findUnique({ where: { id: Number(id) } })
-    if (!reserva) {
-      return res.status(404).json({ ok: false, msg: 'Reserva no encontrada' })
+    if (!reserva) return res.status(404).json({ ok:false, msg:'Reserva no encontrada' })
+
+    // validar tipo (admin)
+    let tipoFinal = reserva.tipo
+    if (tipo) {
+      if (!TIPOS_ADMIN.includes(tipo)) return res.status(400).json({ ok:false, msg:'Tipo de reserva no permitido' })
+      tipoFinal = tipo
     }
 
     const nuevaCancha = cancha || reserva.cancha
@@ -303,13 +229,7 @@ export const actualizarReservaAdmin = async (req, res) => {
       horaFin: nuevaHoraFin,
       excluirId: reserva.id,
     })
-
-    if (existeSolape) {
-      return res.status(400).json({
-        ok: false,
-        msg: 'No se puede modificar: ya hay una reserva aceptada en ese horario.',
-      })
-    }
+    if (existeSolape) return res.status(400).json({ ok:false, msg:'No se puede modificar: ya hay una reserva aceptada en ese horario.' })
 
     const actualizada = await prisma.reserva.update({
       where: { id: Number(id) },
@@ -320,32 +240,30 @@ export const actualizarReservaAdmin = async (req, res) => {
         horaFin: nuevaHoraFin,
         nombre: nombre ?? reserva.nombre,
         comentario: comentario ?? reserva.comentario,
+        tipo: tipoFinal,
       },
     })
-
-    return res.json({ ok: true, msg: 'Reserva actualizada', reserva: actualizada })
+    return res.json({ ok:true, msg:'Reserva actualizada', reserva: actualizada })
   } catch (err) {
     console.error(err)
-    return res.status(500).json({ ok: false, msg: 'Error al actualizar la reserva' })
+    return res.status(500).json({ ok:false, msg:'Error al actualizar la reserva' })
   }
 }
 
-// ADMIN: dar de baja (poner CANCELADA)
 export const bajaReservaAdmin = async (req, res) => {
-  const { id } = req.params
-  const { comentario } = req.body || {}
-
   try {
-    const actualizada = await prisma.reserva.update({
-      where: { id: Number(id) },
-      data: {
-        estado: 'CANCELADA',
-        comentario,
-      },
+    const { id } = req.params
+    const { comentario } = req.body
+    const r = await prisma.reserva.findUnique({ where: { id: Number(id) } })
+    if (!r) return res.status(404).json({ ok:false, msg:'Reserva no encontrada' })
+    if (r.estado !== 'ACEPTADA') return res.status(400).json({ ok:false, msg:'Solo se pueden dar de baja turnos aceptados' })
+    const upd = await prisma.reserva.update({
+      where: { id: r.id },
+      data: { estado: 'CANCELADA', comentario: comentario ?? r.comentario }
     })
-    return res.json({ ok: true, msg: 'Reserva dada de baja', reserva: actualizada })
+    return res.json({ ok:true, msg:'Turno dado de baja', reserva: upd })
   } catch (err) {
     console.error(err)
-    return res.status(500).json({ ok: false, msg: 'Error al dar de baja la reserva' })
+    return res.status(500).json({ ok:false, msg:'Error al dar de baja' })
   }
 }

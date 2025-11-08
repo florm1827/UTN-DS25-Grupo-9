@@ -1,269 +1,227 @@
 import React, { useEffect, useState } from 'react'
 import {
-  Box,
-  Typography,
-  TextField,
-  MenuItem,
-  Paper,
-  Button,
-  Alert,
-  Stack,
+  Container, Box, Card, CardHeader, CardContent, CardActions, Typography,
+  TextField, MenuItem, Button, Stack, Chip, Divider, Alert, CircularProgress,
+  Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions,
+  AppBar, Toolbar, IconButton, Tooltip
 } from '@mui/material'
+import RefreshIcon from '@mui/icons-material/Refresh'
+import Header from '../components/Header.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
-const CANCHAS = [
-  'cancha1',
-  'cancha2',
-  'cancha3',
-  'cancha4',
-  'cancha5',
-  'cancha6',
-  'cancha7',
-  'cancha8',
-]
+const CANCHAS = ['cancha1','cancha2','cancha3','cancha4','cancha5','cancha6','cancha7','cancha8']
+const TIPOS_ADMIN = ['RESERVA','TURNO_FIJO','CLASE','ESCUELA','TORNEO','MANTENIMIENTO']
+const HORAS = (() => { const h=[]; for(let i=8;i<=22;i++){const hh=String(i).padStart(2,'0'); h.push(`${hh}:00`); if(i!==22) h.push(`${hh}:30`)} return h })()
 
 export default function AdminTurnos() {
   const { token, user } = useAuth()
   const [turnos, setTurnos] = useState([])
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(true)
+
   const [fecha, setFecha] = useState('')
   const [cancha, setCancha] = useState('')
   const [nombre, setNombre] = useState('')
-  const [editando, setEditando] = useState(null)
+
+  const [editId, setEditId] = useState(null)
   const [formEdit, setFormEdit] = useState({})
+  const [confirmBaja, setConfirmBaja] = useState({ open:false, id:null })
 
   const cargar = async () => {
-    if (!token) return
-    setError('')
-    let url = `${API_URL}/reservas/admin/aceptadas`
-    const params = []
-    if (fecha) params.push(`fecha=${fecha}`)
-    if (cancha) params.push(`cancha=${cancha}`)
-    if (nombre) params.push(`nombre=${encodeURIComponent(nombre)}`)
-    if (params.length) url += `?${params.join('&')}`
-
+    if (!token || user?.rol !== 'ADMIN') return
+    setLoading(true); setError('')
     try {
-      const res = await fetch(url, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+      let url = `${API_URL}/reservas/admin/aceptadas`
+      const q = []
+      if (fecha) q.push(`fecha=${fecha}`)
+      if (cancha) q.push(`cancha=${cancha}`)
+      if (nombre) q.push(`nombre=${encodeURIComponent(nombre)}`)
+      if (q.length) url += `?${q.join('&')}`
+      const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } })
       const data = await res.json()
-      if (!data.ok) {
-        setError(data.msg || 'No se pudieron obtener las reservas')
-        return
-      }
+      if (!data.ok) return setError(data.msg || 'No se pudieron obtener las reservas')
       setTurnos(data.reservas)
-    } catch (err) {
-      setError('Error de red')
-    }
+    } catch { setError('Error de red') }
+    finally { setLoading(false) }
   }
 
-  useEffect(() => {
-    if (token && user?.rol === 'ADMIN') {
-      cargar()
-    }
-  }, [token, user, fecha, cancha, nombre])
+  useEffect(() => { cargar() }, [token, user, fecha, cancha, nombre])
 
-  const iniciarEdicion = (turno) => {
-    setEditando(turno.id)
+  const startEdit = (t) => {
+    setEditId(t.id)
     setFormEdit({
-      cancha: turno.cancha,
-      fecha: turno.fecha?.slice(0, 10),
-      horaInicio: turno.horaInicio,
-      horaFin: turno.horaFin,
-      nombre: turno.nombre,
-      comentario: turno.comentario || '',
+      cancha: t.cancha,
+      fecha: t.fecha?.slice(0,10),
+      horaInicio: t.horaInicio,
+      horaFin: t.horaFin,
+      nombre: t.nombre,
+      comentario: t.comentario || '',
+      tipo: t.tipo || 'RESERVA',
     })
   }
+  const cancelEdit = () => { setEditId(null); setFormEdit({}) }
 
-  const cancelarEdicion = () => {
-    setEditando(null)
-    setFormEdit({})
-  }
-
-  const guardarEdicion = async (id) => {
+  const saveEdit = async (id) => {
     try {
       const res = await fetch(`${API_URL}/reservas/${id}/admin`, {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(formEdit),
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify(formEdit)
       })
       const data = await res.json()
-      if (!data.ok) {
-        setError(data.msg || 'No se pudo actualizar el turno')
-        return
-      }
-      setEditando(null)
-      cargar()
-    } catch (err) {
-      setError('Error de red')
-    }
+      if (!data.ok) return setError(data.msg || 'No se pudo actualizar el turno')
+      setEditId(null); cargar()
+    } catch { setError('Error de red') }
   }
 
-  const darDeBaja = async (id) => {
+  const baja = async (id) => {
     try {
       const res = await fetch(`${API_URL}/reservas/${id}/baja`, {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ comentario: 'Baja realizada por administrador' }),
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ comentario: 'Baja realizada por administrador' })
       })
       const data = await res.json()
-      if (!data.ok) {
-        setError(data.msg || 'No se pudo dar de baja el turno')
-        return
-      }
-      cargar()
-    } catch (err) {
-      setError('Error de red')
-    }
+      if (!data.ok) return setError(data.msg || 'No se pudo dar de baja el turno')
+      setConfirmBaja({ open:false, id:null }); cargar()
+    } catch { setError('Error de red') }
   }
 
   if (user?.rol !== 'ADMIN') {
     return (
-      <Box p={3}>
-        <Alert severity="error">No tenés permisos para ver esta página.</Alert>
-      </Box>
+      <>
+        <Header />
+        <Container sx={{ py: 4 }}>
+          <Alert severity="error">No tenés permisos para ver esta página.</Alert>
+        </Container>
+      </>
     )
   }
 
   return (
-    <Box p={3}>
-      <Typography variant="h4" mb={2}>
-        Turnos aceptados
-      </Typography>
+    <>
+      <Header />
 
-      {/* filtros */}
-      <Stack direction="row" spacing={2} mb={3} sx={{ flexWrap: 'wrap' }}>
-        <TextField
-          label="Fecha"
-          type="date"
-          value={fecha}
-          onChange={(e) => setFecha(e.target.value)}
-          InputLabelProps={{ shrink: true }}
-          size="small"
-        />
-        <TextField
-          select
-          label="Cancha"
-          value={cancha}
-          onChange={(e) => setCancha(e.target.value)}
-          size="small"
-          sx={{ minWidth: 150 }}
-        >
-          <MenuItem value="">Todas</MenuItem>
-          {CANCHAS.map((c) => (
-            <MenuItem key={c} value={c}>
-              {c.toUpperCase()}
-            </MenuItem>
-          ))}
-        </TextField>
-        <TextField
-          label="Buscar por nombre"
-          value={nombre}
-          onChange={(e) => setNombre(e.target.value)}
-          size="small"
-        />
-      </Stack>
+      <AppBar position="sticky" color="default" sx={{ borderBottom: 1, borderColor: 'divider' }}>
+        <Toolbar sx={{ gap: 2, flexWrap: 'wrap' }}>
+          <TextField label="Fecha" type="date" size="small"
+            value={fecha} onChange={(e)=>setFecha(e.target.value)} InputLabelProps={{ shrink: true }}/>
+          <TextField select label="Cancha" size="small" sx={{ minWidth: 150 }}
+            value={cancha} onChange={(e)=>setCancha(e.target.value)}>
+            <MenuItem value="">Todas</MenuItem>
+            {CANCHAS.map(c => <MenuItem key={c} value={c}>{c.toUpperCase()}</MenuItem>)}
+          </TextField>
+          <TextField label="Buscar por nombre" size="small"
+            value={nombre} onChange={(e)=>setNombre(e.target.value)} />
+          <Tooltip title="Actualizar">
+            <IconButton onClick={cargar}><RefreshIcon /></IconButton>
+          </Tooltip>
+        </Toolbar>
+      </AppBar>
 
-      {error && <Alert severity="error">{error}</Alert>}
-
-      {turnos.length === 0 ? (
-        <Typography>No hay turnos aceptados con esos filtros.</Typography>
-      ) : (
-        turnos.map((t) => (
-          <Paper key={t.id} sx={{ p: 2, mb: 2 }}>
-            {editando === t.id ? (
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                <TextField
-                  select
-                  label="Cancha"
-                  value={formEdit.cancha}
-                  onChange={(e) => setFormEdit((f) => ({ ...f, cancha: e.target.value }))}
-                  size="small"
-                >
-                  {CANCHAS.map((c) => (
-                    <MenuItem key={c} value={c}>
-                      {c.toUpperCase()}
-                    </MenuItem>
-                  ))}
-                </TextField>
-                <TextField
-                  label="Fecha"
-                  type="date"
-                  value={formEdit.fecha}
-                  onChange={(e) => setFormEdit((f) => ({ ...f, fecha: e.target.value }))}
-                  size="small"
-                  InputLabelProps={{ shrink: true }}
-                />
-                <TextField
-                  label="Hora inicio"
-                  value={formEdit.horaInicio}
-                  onChange={(e) => setFormEdit((f) => ({ ...f, horaInicio: e.target.value }))}
-                  size="small"
-                />
-                <TextField
-                  label="Hora fin"
-                  value={formEdit.horaFin}
-                  onChange={(e) => setFormEdit((f) => ({ ...f, horaFin: e.target.value }))}
-                  size="small"
-                />
-                <TextField
-                  label="Nombre reserva"
-                  value={formEdit.nombre}
-                  onChange={(e) => setFormEdit((f) => ({ ...f, nombre: e.target.value }))}
-                  size="small"
-                />
-                <TextField
-                  label="Comentario"
-                  value={formEdit.comentario}
-                  onChange={(e) => setFormEdit((f) => ({ ...f, comentario: e.target.value }))}
-                  size="small"
-                  multiline
-                  rows={2}
-                />
-                <Box sx={{ display: 'flex', gap: 1 }}>
-                  <Button variant="contained" onClick={() => guardarEdicion(t.id)}>
-                    Guardar
-                  </Button>
-                  <Button variant="text" onClick={cancelarEdicion}>
-                    Cancelar
-                  </Button>
-                </Box>
+      <Container maxWidth="lg" sx={{ py: 4 }}>
+        <Card variant="outlined" sx={{ mb: 3 }}>
+          <CardHeader title="Turnos aceptados" subheader="Filtrá, editá o da de baja turnos" />
+          <CardContent>
+            {error && <Alert sx={{ mb: 2 }} severity="error">{error}</Alert>}
+            <Divider sx={{ mb: 2 }} />
+            {loading ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
+                <CircularProgress />
+              </Box>
+            ) : turnos.length === 0 ? (
+              <Box sx={{ textAlign: 'center', py: 6 }}>
+                <Typography>No hay turnos aceptados con esos filtros.</Typography>
               </Box>
             ) : (
-              <>
-                <Typography variant="subtitle1">
-                  {t.cancha.toUpperCase()} — {t.fecha?.slice(0, 10)} — {t.horaInicio} a {t.horaFin}
-                </Typography>
-                <Typography variant="body2">
-                  Reserva hecha por: {t.usuario?.nombre} ({t.usuario?.email})
-                </Typography>
-                <Typography variant="body2">Nombre reserva: {t.nombre}</Typography>
-                {t.comentario && (
-                  <Typography variant="body2" color="text.secondary">
-                    Comentario: {t.comentario}
-                  </Typography>
-                )}
-
-                <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
-                  <Button variant="outlined" onClick={() => iniciarEdicion(t)}>
-                    Modificar
-                  </Button>
-                  <Button variant="outlined" color="error" onClick={() => darDeBaja(t.id)}>
-                    Dar de baja
-                  </Button>
-                </Box>
-              </>
+              <Stack spacing={2}>
+                {turnos.map(t => (
+                  <Card key={t.id} variant="outlined">
+                    <CardContent>
+                      {editId === t.id ? (
+                        <Stack spacing={1}>
+                          <Stack direction="row" spacing={2} flexWrap="wrap">
+                            <TextField select label="Cancha" size="small" sx={{ minWidth: 150 }}
+                              value={formEdit.cancha} onChange={(e)=>setFormEdit(f=>({...f, cancha:e.target.value}))}>
+                              {CANCHAS.map(c => <MenuItem key={c} value={c}>{c.toUpperCase()}</MenuItem>)}
+                            </TextField>
+                            <TextField label="Fecha" type="date" size="small"
+                              value={formEdit.fecha} onChange={(e)=>setFormEdit(f=>({...f, fecha:e.target.value}))}
+                              InputLabelProps={{ shrink: true }}/>
+                            <TextField select label="Hora inicio" size="small" sx={{ minWidth: 120 }}
+                              value={formEdit.horaInicio} onChange={(e)=>setFormEdit(f=>({...f, horaInicio:e.target.value}))}>
+                              {HORAS.map(h=> <MenuItem key={h} value={h}>{h}</MenuItem>)}
+                            </TextField>
+                            <TextField select label="Hora fin" size="small" sx={{ minWidth: 120 }}
+                              value={formEdit.horaFin} onChange={(e)=>setFormEdit(f=>({...f, horaFin:e.target.value}))}>
+                              {HORAS.map(h=> <MenuItem key={h} value={h}>{h}</MenuItem>)}
+                            </TextField>
+                            <TextField label="Nombre reserva" size="small" sx={{ minWidth: 220 }}
+                              value={formEdit.nombre} onChange={(e)=>setFormEdit(f=>({...f, nombre:e.target.value}))}/>
+                            <TextField select label="Tipo" size="small" sx={{ minWidth: 160 }}
+                              value={formEdit.tipo} onChange={(e)=>setFormEdit(f=>({...f, tipo:e.target.value}))}>
+                              {TIPOS_ADMIN.map(x => <MenuItem key={x} value={x}>{x}</MenuItem>)}
+                            </TextField>
+                          </Stack>
+                          <TextField label="Comentario" multiline minRows={2}
+                            value={formEdit.comentario} onChange={(e)=>setFormEdit(f=>({...f, comentario:e.target.value}))}/>
+                        </Stack>
+                      ) : (
+                        <Stack direction="row" justifyContent="space-between" alignItems="center" gap={2} flexWrap="wrap">
+                          <Box>
+                            <Typography variant="h6">{t.cancha.toUpperCase()}</Typography>
+                            <Typography variant="body2" color="text.secondary">
+                              {t.fecha?.slice(0,10)} — {t.horaInicio} a {t.horaFin}
+                            </Typography>
+                            <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
+                              <Chip label={`Nombre reserva: ${t.nombre}`} size="small" />
+                              <Chip label={`Usuario: ${t.usuario?.nombre}`} size="small" variant="outlined" />
+                              <Chip label={`Tipo: ${t.tipo}`} size="small" variant="outlined" />
+                            </Stack>
+                            {t.comentario && (
+                              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                                Comentario: {t.comentario}
+                              </Typography>
+                            )}
+                          </Box>
+                        </Stack>
+                      )}
+                    </CardContent>
+                    <CardActions sx={{ justifyContent: 'flex-end' }}>
+                      {editId === t.id ? (
+                        <>
+                          <Button variant="contained" onClick={()=>saveEdit(t.id)}>Guardar</Button>
+                          <Button onClick={cancelEdit}>Cancelar</Button>
+                        </>
+                      ) : (
+                        <>
+                          <Button variant="outlined" onClick={()=>startEdit(t)}>Modificar</Button>
+                          <Button color="error" variant="outlined"
+                            onClick={()=>setConfirmBaja({ open:true, id:t.id })}>
+                            Dar de baja
+                          </Button>
+                        </>
+                      )}
+                    </CardActions>
+                  </Card>
+                ))}
+              </Stack>
             )}
-          </Paper>
-        ))
-      )}
-    </Box>
+          </CardContent>
+        </Card>
+
+        <Dialog open={confirmBaja.open} onClose={()=>setConfirmBaja({ open:false, id:null })}>
+          <DialogTitle>Dar de baja turno</DialogTitle>
+          <DialogContent>
+            <DialogContentText>¿Confirmás dar de baja este turno aceptado?</DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={()=>setConfirmBaja({ open:false, id:null })}>Cancelar</Button>
+            <Button color="error" variant="contained" onClick={()=>baja(confirmBaja.id)}>Confirmar</Button>
+          </DialogActions>
+        </Dialog>
+      </Container>
+    </>
   )
 }
