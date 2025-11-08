@@ -4,6 +4,7 @@ import dotenv from 'dotenv'
 
 import authRoutes from './routes/auth.routes.js'
 import reservasRoutes from './routes/reservas.routes.js'
+import userRoutes from './routes/user.routes.js'
 
 dotenv.config()
 
@@ -19,6 +20,7 @@ app.use(express.json())
 // rutas
 app.use('/api/auth', authRoutes)
 app.use('/api/reservas', reservasRoutes)
+app.use('/api/users', userRoutes)
 app.get('/', (req, res) => {
   res.send('Backend funcionando ✅');
 });

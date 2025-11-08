@@ -10,6 +10,8 @@ import CssBaseline from '@mui/material/CssBaseline';
 import Nosotros from './pages/Nosotros';
 import Notificaciones from './pages/Notificaciones.jsx'
 import AdminTurnos from './pages/AdminTurnos.jsx';
+import Perfil from './pages/Perfil.jsx'
+import ProtectedRoute from './components/ProtectedRoute.jsx'
 
 function App() {
     return (
@@ -22,10 +24,16 @@ function App() {
           <Route path="/alq" element={<Alquiler />} />
           {/*<Route path="/alq/entren" element={<Entrenamientos />} />*/}
           <Route path="/reg" element={<Register/>} />
+          
           <Route path="/admin" element={<AdminPage />} />
           <Route path="/nos" element={<Nosotros />} />
           <Route path="/notificaciones" element={<Notificaciones />} />
           <Route path="/admin/turnos" element={<AdminTurnos />} />
+          <Route path="/perfil" element={
+        <ProtectedRoute>
+          <Perfil />
+        </ProtectedRoute>
+      } />
         </Routes>
       </>
     );

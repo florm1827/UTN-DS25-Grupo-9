@@ -2,14 +2,11 @@ import prisma from '../lib/prisma.js'
 
 // -------- Helpers
 const getDayRange = (fechaStr) => {
-  // fechaStr: "YYYY-MM-DD"
   const start = new Date(`${fechaStr}T00:00:00.000Z`)
   const end = new Date(`${fechaStr}T23:59:59.999Z`)
   return { start, end }
 }
-
 const overlaps = (aStart, aEnd, bStart, bEnd) => (aStart < bEnd && aEnd > bStart)
-
 const haySolapamientoAceptadas = async ({ cancha, fecha, horaInicio, horaFin, excluirId }) => {
   const { start, end } = getDayRange(fecha)
   const list = await prisma.reserva.findMany({
@@ -29,7 +26,7 @@ const TIPOS_ADMIN = ['RESERVA', 'TURNO_FIJO', 'CLASE', 'ESCUELA', 'TORNEO', 'MAN
 
 // -------- Controllers
 
-// Crear solicitud (USER/ADMIN)
+// Crear solicitud (USER/ADMIN) – ADMIN: auto-aceptada
 export const crearReserva = async (req, res) => {
   try {
     const { cancha, horaInicio, horaFin, nombre, fecha, tipo: tipoIn } = req.body
@@ -50,17 +47,21 @@ export const crearReserva = async (req, res) => {
         nombre: nombreFinal,
         fecha: new Date(fecha),
         tipo,
+        estado: isAdmin ? 'ACEPTADA' : 'PENDIENTE', // 👈 auto-aceptar si ADMIN
         usuarioId: req.user.id,
       },
     })
-    return res.status(201).json({ ok:true, msg:'Solicitud enviada. Esperando aprobación del administrador.', reserva })
+    return res.status(201).json({
+      ok:true,
+      msg: isAdmin ? 'Reserva creada y aceptada automáticamente.' : 'Solicitud enviada. Esperando aprobación del administrador.',
+      reserva
+    })
   } catch (err) {
     console.error(err)
     return res.status(500).json({ ok:false, msg:'Error al crear la reserva' })
   }
 }
 
-// Listar ACEPTADAS (público autenticado, filtra por fecha; usado por grilla)
 export const listarReservasAceptadas = async (req, res) => {
   try {
     const { fecha, cancha } = req.query
@@ -82,7 +83,6 @@ export const listarReservasAceptadas = async (req, res) => {
   }
 }
 
-// Mis reservas / notificaciones
 export const listarMisReservas = async (req, res) => {
   try {
     const reservas = await prisma.reserva.findMany({
@@ -110,7 +110,6 @@ export const cancelarMiReservaPendiente = async (req, res) => {
   }
 }
 
-// Admin: pendientes con filtros
 export const listarPendientes = async (req, res) => {
   try {
     const { fecha, cancha, nombre } = req.query
@@ -134,7 +133,6 @@ export const listarPendientes = async (req, res) => {
   }
 }
 
-// Admin: aceptar (con revalidación de solape)
 export const aceptarReserva = async (req, res) => {
   try {
     const { id } = req.params
@@ -160,7 +158,6 @@ export const aceptarReserva = async (req, res) => {
   }
 }
 
-// Admin: rechazar
 export const rechazarReserva = async (req, res) => {
   try {
     const { id } = req.params
@@ -179,7 +176,6 @@ export const rechazarReserva = async (req, res) => {
   }
 }
 
-// Admin: lista de aceptadas con filtros + edición y baja
 export const listarAceptadasAdmin = async (req, res) => {
   try {
     const { fecha, cancha, nombre } = req.query
@@ -210,7 +206,7 @@ export const actualizarReservaAdmin = async (req, res) => {
     const reserva = await prisma.reserva.findUnique({ where: { id: Number(id) } })
     if (!reserva) return res.status(404).json({ ok:false, msg:'Reserva no encontrada' })
 
-    // validar tipo (admin)
+    const TIPOS_ADMIN = ['RESERVA','TURNO_FIJO','CLASE','ESCUELA','TORNEO','MANTENIMIENTO']
     let tipoFinal = reserva.tipo
     if (tipo) {
       if (!TIPOS_ADMIN.includes(tipo)) return res.status(400).json({ ok:false, msg:'Tipo de reserva no permitido' })

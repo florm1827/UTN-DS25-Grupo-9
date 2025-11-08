@@ -9,6 +9,7 @@ import Button from '@mui/joy/Button'
 import { Link, useNavigate } from 'react-router-dom'
 import GoBack from '../components/Goback'
 import { useAuth } from '../context/AuthContext.jsx'
+import { useNotification } from '../context/NotificationContext.jsx'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
 
@@ -36,32 +37,31 @@ export default function Login() {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleLogin = async (e) => {
-    e.preventDefault()
-    setServerError('')
+  const { showNotification } = useNotification()
 
-    if (!validar()) return
+const handleLogin = async (e) => {
+  e.preventDefault()
+  try {
+    const res = await fetch(`${API_URL}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    })
+    const data = await res.json()
 
-    try {
-      const res = await fetch(`${API_URL}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      })
-      const data = await res.json()
-
-      if (!res.ok || !data.ok) {
-        setServerError(data.msg || 'Credenciales inválidas')
-        return
-      }
-
-      // guardar en contexto
-      login(data)
-      navigate('/')
-    } catch (err) {
-      setServerError('No se pudo conectar con el servidor')
+    if (!data.ok) {
+      showNotification(data.msg || 'Error de inicio de sesión', 'error')
+      return
     }
+
+    login(data)
+    showNotification('Inicio de sesión exitoso', 'success')
+    navigate('/')
+  } catch (err) {
+    showNotification('Error al conectar con el servidor', 'error')
   }
+}
+  
 
   return (
     <CssVarsProvider>
