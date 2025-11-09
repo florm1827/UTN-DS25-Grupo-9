@@ -19,14 +19,14 @@ import PersonIcon from '@mui/icons-material/Person'
 import LogoutIcon from '@mui/icons-material/Logout'
 
 import { useAuth } from '../context/AuthContext.jsx'
-import GoBack from './GoBack.jsx' // Tu componente GoBack
+import GoBack from './Goback.jsx'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
 
 export default function Header() {
   const { user, logout, token } = useAuth()
   const navigate = useNavigate()
-  const location = useLocation() // <--- Ruta actual
+  const location = useLocation()
 
   // Notificaciones
   const [notiCount, setNotiCount] = React.useState(0)
