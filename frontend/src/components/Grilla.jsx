@@ -1,27 +1,23 @@
+// src/components/Grilla.jsx
 import React, { useMemo } from 'react'
-import { Box, Paper, Typography, Table, TableHead, TableBody, TableRow, TableCell, Tooltip, Chip, Stack, Divider } from '@mui/material'
+import {
+  Box, Paper, Typography, Table, TableHead, TableBody, TableRow, TableCell,
+  Tooltip, Chip, Stack, Divider
+} from '@mui/material'
+import { useAuth } from '../context/AuthContext.jsx'
 
 const CANCHAS = ['cancha1','cancha2','cancha3','cancha4','cancha5','cancha6','cancha7','cancha8']
 
-// colores suaves por tipo
+// 🎨 Colores originales (manteniendo los tuyos anteriores)
 const TIPO_BG = {
-  RESERVA: '#e3f2fd',        // celeste muy suave
-  TURNO_FIJO: '#ede7f6',     // violeta muy suave
-  CLASE: '#e8f5e9',          // verde muy suave
-  ESCUELA: '#fff3e0',        // naranja muy suave
-  TORNEO: '#ffebee',         // rojo muy suave
-  MANTENIMIENTO: '#eeeeee',  // gris claro
-}
-const TIPO_FG = {
-  RESERVA: '#0d47a1',
-  TURNO_FIJO: '#4a148c',
-  CLASE: '#1b5e20',
-  ESCUELA: '#e65100',
-  TORNEO: '#b71c1c',
-  MANTENIMIENTO: '#424242',
+  RESERVA: '#64b5f6',        // azul claro
+  TURNO_FIJO: '#b39ddb',     // violeta claro
+  CLASE: '#81c784',          // verde
+  ESCUELA: '#ffb74d',        // naranja
+  TORNEO: '#ef9a9a',         // rojo suave
+  MANTENIMIENTO: '#e0e0e0',  // gris
 }
 
-// genera franjas cada 30'
 const genSlots = () => {
   const slots = []
   for (let h = 8; h <= 22; h++) {
@@ -36,6 +32,9 @@ const SLOTS = genSlots()
 const slotOcupado = (slot, inicio, fin) => slot >= inicio && slot < fin
 
 export default function Grilla({ reservas = [], fecha }) {
+  const { user } = useAuth()
+  const isAdmin = user?.rol === 'ADMIN'
+
   const reservasPorCancha = useMemo(() => {
     const map = new Map()
     for (const c of CANCHAS) map.set(c, [])
@@ -52,12 +51,12 @@ export default function Grilla({ reservas = [], fecha }) {
       <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1, flexWrap: 'wrap', gap: 1 }}>
         <Typography variant="h6">Disponibilidad — {fecha}</Typography>
         <Stack direction="row" spacing={1} alignItems="center">
-          <Chip size="small" label="Reserva" sx={{ bgcolor: TIPO_BG.RESERVA, color: TIPO_FG.RESERVA }} />
-          <Chip size="small" label="Turno fijo" sx={{ bgcolor: TIPO_BG.TURNO_FIJO, color: TIPO_FG.TURNO_FIJO }} />
-          <Chip size="small" label="Clase" sx={{ bgcolor: TIPO_BG.CLASE, color: TIPO_FG.CLASE }} />
-          <Chip size="small" label="Escuela" sx={{ bgcolor: TIPO_BG.ESCUELA, color: TIPO_FG.ESCUELA }} />
-          <Chip size="small" label="Torneo" sx={{ bgcolor: TIPO_BG.TORNEO, color: TIPO_FG.TORNEO }} />
-          <Chip size="small" label="Mantenimiento" sx={{ bgcolor: TIPO_BG.MANTENIMIENTO, color: TIPO_FG.MANTENIMIENTO }} />
+          <Chip size="small" label="Reserva" sx={{ bgcolor: '#e3f2fd' }} />
+          <Chip size="small" label="Turno fijo" sx={{ bgcolor: '#ede7f6' }} />
+          <Chip size="small" label="Clase" sx={{ bgcolor: '#e8f5e9' }} />
+          <Chip size="small" label="Escuela" sx={{ bgcolor: '#fff3e0' }} />
+          <Chip size="small" label="Torneo" sx={{ bgcolor: '#ffebee' }} />
+          <Chip size="small" label="Mantenimiento" sx={{ bgcolor: '#eeeeee' }} />
         </Stack>
       </Stack>
       <Divider sx={{ mb: 2 }} />
@@ -80,43 +79,58 @@ export default function Grilla({ reservas = [], fecha }) {
                 <TableCell sx={{ position: 'sticky', left: 0, zIndex: 1, bgcolor: 'background.paper', fontWeight: 500 }}>
                   {slot}
                 </TableCell>
+
                 {CANCHAS.map((cancha) => {
                   const lista = reservasPorCancha.get(cancha) || []
                   const r = lista.find((res) => slotOcupado(slot, res.horaInicio, res.horaFin))
                   const ocupado = Boolean(r)
-                  const bg = ocupado ? (TIPO_BG[r.tipo] || '#e0f7fa') : '#f5f5f5'
-                  const fg = ocupado ? (TIPO_FG[r.tipo] || '#006064') : 'transparent'
+
+                  if (!ocupado) {
+                    return (
+                      <TableCell key={cancha + slot} align="center" sx={{ p: 0.5 }}>
+                        <Box sx={{ bgcolor: '#f5f5f5', borderRadius: 1, height: 28 }} />
+                      </TableCell>
+                    )
+                  }
+
+                  const bg = TIPO_BG[r.tipo] || '#90a4ae'
+                  const textColor = isAdmin ? '#fff' : '#000'
+                  const contentForAdmin = `${r?.nombre ?? '-'} · ${r?.tipo?.replace('_', ' ')}`
+
                   return (
                     <TableCell key={cancha + slot} align="center" sx={{ p: 0.5 }}>
-                      {ocupado ? (
-                        <Tooltip
-                          title={
-                            <Box>
-                              <Typography variant="caption">{r.horaInicio}–{r.horaFin} • {cancha.toUpperCase()}</Typography>
-                              <Typography variant="caption" sx={{ display: 'block' }}>{r.tipo}</Typography>
-                              {r.nombre && <Typography variant="caption" color="text.secondary">{r.nombre}</Typography>}
-                            </Box>
-                          }
-                          arrow
-                        >
-                          <Box sx={{
+                      <Tooltip
+                        title={
+                          <Box>
+                            <Typography variant="caption">{r.horaInicio}–{r.horaFin} • {cancha.toUpperCase()}</Typography>
+                            <Typography variant="caption" sx={{ display: 'block' }}>{r.tipo}</Typography>
+                            {r.nombre && <Typography variant="caption" color="text.secondary">{r.nombre}</Typography>}
+                          </Box>
+                        }
+                        arrow
+                      >
+                        <Box
+                          sx={{
                             bgcolor: bg,
-                            color: fg,
+                            color: textColor,
                             borderRadius: 1,
                             height: 28,
                             lineHeight: '28px',
                             fontSize: 12,
-                            fontWeight: 600,
+                            fontWeight: 700,
+                            px: 0.75,
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
-                            px: 0.5,
-                          }}>
-                            {r.tipo.replace('_',' ')}
-                          </Box>
-                        </Tooltip>
-                      ) : (
-                        <Box sx={{ bgcolor: '#f5f5f5', borderRadius: 1, height: 28 }} />
-                      )}
+                            whiteSpace: 'nowrap',
+                            textShadow: isAdmin ? '0 1px 2px rgba(0,0,0,0.35)' : 'none',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          {isAdmin ? contentForAdmin : r.tipo.replace('_', ' ')}
+                        </Box>
+                      </Tooltip>
                     </TableCell>
                   )
                 })}
@@ -134,3 +148,4 @@ export default function Grilla({ reservas = [], fecha }) {
     </Paper>
   )
 }
+

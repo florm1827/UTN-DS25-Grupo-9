@@ -59,45 +59,56 @@ export const login = async (req, res) => {
   try {
     const { email, password } = req.body
 
-    const user = await prisma.usuario.findUnique({
-      where: { email },
-    })
-    if (!user) {
+    if (!email || !password) {
+      return res.status(400).json({ ok: false, msg: 'Email y contraseña son obligatorios' })
+    }
+
+    const usuario = await prisma.usuario.findUnique({ where: { email } })
+    if (!usuario) {
       return res.status(400).json({ ok: false, msg: 'Credenciales inválidas' })
     }
 
-    const isValid = await bcrypt.compare(password, user.password)
-    if (!isValid) {
+    const passwordOk = await bcrypt.compare(password, usuario.password)
+    if (!passwordOk) {
       return res.status(400).json({ ok: false, msg: 'Credenciales inválidas' })
     }
 
-    const token = signToken(user)
+    // ✅ Incluir NOMBRE en el payload del token
+    const token = jwt.sign(
+      {
+        id: usuario.id,
+        email: usuario.email,
+        rol: usuario.rol,
+        nombre: usuario.nombre, // 👈 aquí va el nombre
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    )
 
     return res.json({
       ok: true,
       token,
       user: {
-        id: user.id,
-        nombre: user.nombre,
-        email: user.email,
-        rol: user.rol,
+        id: usuario.id,
+        email: usuario.email,
+        nombre: usuario.nombre, // 👈 también en la respuesta
+        rol: usuario.rol,
       },
     })
   } catch (err) {
     console.error(err)
-    return res.status(500).json({ ok: false, msg: 'Error en el servidor' })
+    return res.status(500).json({ ok: false, msg: 'Error al iniciar sesión' })
   }
 }
 
 // GET /api/auth/me
+// src/controllers/auth.controller.js
 export const me = async (req, res) => {
   try {
-    const user = await prisma.usuario.findUnique({
-      where: { id: req.user.id },
-      select: { id: true, nombre: true, email: true, rol: true },
-    })
-    return res.json({ ok: true, user })
-  } catch (err) {
-    return res.status(500).json({ ok: false, msg: 'Error en el servidor' })
+    // req.user viene del middleware que verifica el token
+    const { id, email, nombre, rol } = req.user
+    return res.json({ ok: true, user: { id, email, nombre, rol } })
+  } catch {
+    return res.status(401).json({ ok: false, msg: 'Token inválido' })
   }
 }

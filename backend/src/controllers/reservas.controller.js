@@ -1,3 +1,4 @@
+// backend/src/controllers/reservas.controller.js
 import prisma from '../lib/prisma.js'
 
 // -------- Helpers
@@ -26,48 +27,68 @@ const TIPOS_ADMIN = ['RESERVA', 'TURNO_FIJO', 'CLASE', 'ESCUELA', 'TORNEO', 'MAN
 
 // -------- Controllers
 
-// Crear solicitud (USER/ADMIN) – ADMIN: auto-aceptada
+// Crear (ADMIN auto-acepta)
 export const crearReserva = async (req, res) => {
   try {
     const { cancha, horaInicio, horaFin, nombre, fecha, tipo: tipoIn } = req.body
-    if (!fecha) return res.status(400).json({ ok:false, msg:'La fecha es obligatoria' })
+    if (!fecha) {
+      return res.status(400).json({ ok: false, msg: 'La fecha es obligatoria' })
+    }
 
     const isAdmin = req.user?.rol === 'ADMIN'
     const allowed = isAdmin ? TIPOS_ADMIN : TIPOS_USER
     const tipo = allowed.includes(tipoIn) ? tipoIn : 'RESERVA'
-    const nombreFinal = isAdmin ? (nombre || 'Reserva') : (req.user?.nombre || 'Reserva')
 
-    // Validación de solapamiento contra ACEPTADAS
+    // ✅ Si el usuario NO es admin → usamos su nombre directamente del token
+    const nombreFinal = isAdmin
+      ? (nombre && nombre.trim() !== '' ? nombre.trim() : 'Reserva')
+      : (req.user?.nombre || 'Sin nombre')
+
+    // 🔍 Validar solapamiento
     const existeSolape = await haySolapamientoAceptadas({ cancha, fecha, horaInicio, horaFin })
-    if (existeSolape) return res.status(400).json({ ok:false, msg:'Ya existe una reserva aceptada para esa cancha y horario.' })
+    if (existeSolape) {
+      return res.status(400).json({
+        ok: false,
+        msg: 'Ya existe una reserva aceptada para esa cancha y horario.',
+      })
+    }
 
+    // 🧩 Crear reserva
     const reserva = await prisma.reserva.create({
       data: {
-        cancha, horaInicio, horaFin,
-        nombre: nombreFinal,
+        cancha,
+        horaInicio,
+        horaFin,
+        nombre: nombreFinal, // 👈 ahora siempre coincide con el nombre real del usuario
         fecha: new Date(fecha),
         tipo,
-        estado: isAdmin ? 'ACEPTADA' : 'PENDIENTE', // 👈 auto-aceptar si ADMIN
+        estado: isAdmin ? 'ACEPTADA' : 'PENDIENTE',
         usuarioId: req.user.id,
       },
     })
+
     return res.status(201).json({
-      ok:true,
-      msg: isAdmin ? 'Reserva creada y aceptada automáticamente.' : 'Solicitud enviada. Esperando aprobación del administrador.',
-      reserva
+      ok: true,
+      msg: isAdmin
+        ? 'Reserva creada y aceptada automáticamente.'
+        : 'Solicitud enviada. Esperando aprobación del administrador.',
+      reserva,
     })
   } catch (err) {
     console.error(err)
-    return res.status(500).json({ ok:false, msg:'Error al crear la reserva' })
+    return res.status(500).json({ ok: false, msg: 'Error al crear la reserva' })
   }
 }
 
+// 👇 incluye los TURNO_FIJO activos en cualquier fecha >= a su fecha base
 export const listarReservasAceptadas = async (req, res) => {
   try {
     const { fecha, cancha } = req.query
     if (!fecha) return res.json({ ok:true, reservas: [] })
     const { start, end } = getDayRange(fecha)
-    const reservas = await prisma.reserva.findMany({
+
+    // Reservas normales del día
+    const delDia = await prisma.reserva.findMany({
       where: {
         estado: 'ACEPTADA',
         fecha: { gte: start, lte: end },
@@ -76,7 +97,27 @@ export const listarReservasAceptadas = async (req, res) => {
       include: { usuario: { select: { id:true, nombre:true, email:true } } },
       orderBy: [{ cancha: 'asc' }, { horaInicio: 'asc' }]
     })
-    return res.json({ ok:true, reservas })
+
+    // Turnos fijos activos (fecha base <= fecha consultada) y no dados de baja
+    const fijos = await prisma.reserva.findMany({
+      where: {
+        estado: 'ACEPTADA',
+        tipo: 'TURNO_FIJO',
+        baja: false,
+        ...(cancha ? { cancha } : {}),
+        // fecha base anterior o igual al día consultado
+        fecha: { lte: end },
+      },
+      include: { usuario: { select: { id:true, nombre:true, email:true } } },
+    })
+
+    // Para la grilla del día, clonar los fijos con la fecha de consulta (opcional si el cliente no usa fecha)
+    const fijosParaElDia = fijos.map(r => ({
+      ...r,
+      fecha: new Date(start), // homogeneizamos por si el front muestra la fecha
+    }))
+
+    return res.json({ ok:true, reservas: [...delDia, ...fijosParaElDia] })
   } catch (err) {
     console.error(err)
     return res.status(500).json({ ok:false, msg:'Error al listar reservas aceptadas' })
@@ -253,9 +294,15 @@ export const bajaReservaAdmin = async (req, res) => {
     const r = await prisma.reserva.findUnique({ where: { id: Number(id) } })
     if (!r) return res.status(404).json({ ok:false, msg:'Reserva no encontrada' })
     if (r.estado !== 'ACEPTADA') return res.status(400).json({ ok:false, msg:'Solo se pueden dar de baja turnos aceptados' })
+
     const upd = await prisma.reserva.update({
       where: { id: r.id },
-      data: { estado: 'CANCELADA', comentario: comentario ?? r.comentario }
+      data: {
+        estado: 'CANCELADA',
+        comentario: comentario ?? r.comentario,
+        // si era TURNO_FIJO, marcar baja para que no aparezca más en días futuros
+        ...(r.tipo === 'TURNO_FIJO' ? { baja: true } : {})
+      }
     })
     return res.json({ ok:true, msg:'Turno dado de baja', reserva: upd })
   } catch (err) {

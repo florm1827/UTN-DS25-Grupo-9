@@ -28,10 +28,12 @@ model Reserva {
   fecha      DateTime
   estado     EstadoReserva @default(PENDIENTE)
   comentario String?
-  tipo       TipoReserva   @default(RESERVA) 
+  tipo       TipoReserva   @default(RESERVA)
   usuarioId  Int
   usuario    Usuario       @relation(fields: [usuarioId], references: [id])
   createdAt  DateTime      @default(now())
+  baja       Boolean       @default(false) //  marca de “dado de baja” (para TURNO_FIJO)
+  updatedAt  DateTime      @default(now()) @updatedAt
 }
 
 enum EstadoReserva {
