@@ -1,3 +1,4 @@
+
 import React from 'react';
 import IconButton from '@mui/material/IconButton';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -14,12 +15,15 @@ export default function GoBack() {
       <IconButton
         onClick={() => navigate(-1)}
         size="small"
-        color="inherit"
         aria-label="volver"
         sx={{
-          border: '1px solid white',
+          backgroundColor: 'white', // fondo blanco
+          color: 'black',           // color del ícono
           padding: '6px',
           ml: 1,
+          '&:hover': {
+            backgroundColor: '#f0f0f0', // ligero cambio de color al hacer hover
+          },
         }}
       >
         <ArrowBackIcon fontSize="small" />

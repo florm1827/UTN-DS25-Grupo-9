@@ -10,6 +10,7 @@ import RefreshIcon from '@mui/icons-material/Refresh'
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined'
 import Header from '../components/Header.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
+import Footer from '../components/Footer.jsx'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
 const CANCHAS = ['cancha1','cancha2','cancha3','cancha4','cancha5','cancha6','cancha7','cancha8']
@@ -80,117 +81,161 @@ export default function AdminPage() {
     <>
       <Header />
 
-      {/* AppBar de filtros */}
-      <AppBar position="sticky" color="default" sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <Toolbar sx={{ gap: 2, flexWrap: 'wrap' }}>
-          <FilterAltOutlinedIcon />
-          <TextField
-            label="Fecha"
-            type="date"
-            value={fechaFiltro}
-            onChange={(e) => setFechaFiltro(e.target.value)}
-            InputLabelProps={{ shrink: true }}
-            size="small"
-            disabled={verTodas}
-          />
-          <TextField
-            select size="small" label="Cancha"
-            value={canchaFiltro} onChange={(e) => setCanchaFiltro(e.target.value)}
-            sx={{ minWidth: 160 }}
+      {/* 🔹 Fondo con imagen y efecto difuminado */}
+      <Box
+        sx={{
+          position: 'relative',
+          minHeight: '100vh',
+          backgroundImage: 'url(https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQWIgWEIT_pOkELQ5mvvNQf277k58egftL9TmhOtyep0EEZVVG1nX_axtCnRcToEOKpl0I&usqp=CAU)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
+        {/* Capa de desenfoque */}
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backdropFilter: 'blur(8px)',
+            backgroundColor: 'rgba(255,255,255,0.2)',
+            zIndex: 0,
+          }}
+        />
+
+        {/* Contenido principal */}
+        <Box sx={{ position: 'relative', zIndex: 1 }}>
+          {/* AppBar de filtros */}
+          <AppBar
+            position="sticky"
+            color="default"
+            sx={{ borderBottom: 1, borderColor: 'divider', backgroundColor: 'rgba(255,255,255,0.8)' }}
           >
-            <MenuItem value="">Todas</MenuItem>
-            {CANCHAS.map(c => <MenuItem key={c} value={c}>{c.toUpperCase()}</MenuItem>)}
-          </TextField>
-          <TextField
-            size="small"
-            label="Buscar por nombre"
-            value={nombreFiltro}
-            onChange={(e) => setNombreFiltro(e.target.value)}
-            sx={{ minWidth: 220 }}
-          />
-          <FormControlLabel
-            control={<Checkbox checked={verTodas} onChange={(e)=>setVerTodas(e.target.checked)} />}
-            label="Ver todas"
-          />
-          <Tooltip title="Actualizar">
-            <IconButton onClick={fetchPendientes}>
-              <RefreshIcon />
-            </IconButton>
-          </Tooltip>
-        </Toolbar>
-      </AppBar>
+            <Toolbar sx={{ gap: 2, flexWrap: 'wrap' }}>
+              <FilterAltOutlinedIcon />
+              <TextField
+                label="Fecha"
+                type="date"
+                value={fechaFiltro}
+                onChange={(e) => setFechaFiltro(e.target.value)}
+                InputLabelProps={{ shrink: true }}
+                size="small"
+                disabled={verTodas}
+              />
+              <TextField
+                select size="small" label="Cancha"
+                value={canchaFiltro} onChange={(e) => setCanchaFiltro(e.target.value)}
+                sx={{ minWidth: 160 }}
+              >
+                <MenuItem value="">Todas</MenuItem>
+                {CANCHAS.map(c => <MenuItem key={c} value={c}>{c.toUpperCase()}</MenuItem>)}
+              </TextField>
+              <TextField
+                size="small"
+                label="Buscar por nombre"
+                value={nombreFiltro}
+                onChange={(e) => setNombreFiltro(e.target.value)}
+                sx={{ minWidth: 220 }}
+              />
+              <FormControlLabel
+                control={<Checkbox checked={verTodas} onChange={(e)=>setVerTodas(e.target.checked)} />}
+                label="Ver todas"
+              />
+              <Tooltip title="Actualizar">
+                <IconButton onClick={fetchPendientes}>
+                  <RefreshIcon />
+                </IconButton>
+              </Tooltip>
+            </Toolbar>
+          </AppBar>
 
-      <Container maxWidth="md" sx={{ py: 4 }}>
-        <Card variant="outlined" sx={{ mb: 3 }}>
-          <CardHeader title="Solicitudes pendientes" subheader="Gestioná y comentá cada solicitud" />
-          <CardContent>
-            {error && <Alert sx={{ mb: 2 }} severity="error">{error}</Alert>}
-            <Divider sx={{ mb: 2 }} />
-            {loading ? (
-              <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
-                <CircularProgress />
-              </Box>
-            ) : pendientes.length === 0 ? (
-              <Box sx={{ textAlign: 'center', py: 6 }}>
-                <Typography variant="body1">No hay solicitudes con esos filtros.</Typography>
-              </Box>
-            ) : (
-              <Stack spacing={2}>
-                {pendientes.map(r => (
-                  <Card key={r.id} variant="outlined">
-                    <CardContent>
-                      <Stack direction="row" justifyContent="space-between" alignItems="center" gap={2} flexWrap="wrap">
-                        <Box>
-                          <Typography variant="h6">{r.cancha.toUpperCase()}</Typography>
-                          <Typography variant="body2" color="text.secondary">
-                            {r.fecha?.slice(0,10)} — {r.horaInicio} a {r.horaFin}
-                          </Typography>
-                          <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
-                            <Chip label={`Solicitante: ${r.nombre}`} size="small" />
-                            <Chip label={`Usuario: ${r.usuario?.nombre}`} size="small" variant="outlined" />
-                            <Chip label={`Tipo: ${r.tipo}`} size="small" variant="outlined" />
+          {/* Contenedor principal */}
+          <Container
+            maxWidth="md"
+            sx={{
+              py: 4,
+              backgroundColor: 'rgba(255,255,255,0.75)',
+              borderRadius: 2,
+              mt: 3,
+              mb: 3,
+            }}
+          >
+            <Card variant="outlined" sx={{ mb: 3 }}>
+              <CardHeader title="Solicitudes pendientes" subheader="Gestioná y comentá cada solicitud" />
+              <CardContent>
+                {error && <Alert sx={{ mb: 2 }} severity="error">{error}</Alert>}
+                <Divider sx={{ mb: 2 }} />
+                {loading ? (
+                  <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
+                    <CircularProgress />
+                  </Box>
+                ) : pendientes.length === 0 ? (
+                  <Box sx={{ textAlign: 'center', py: 6 }}>
+                    <Typography variant="body1">No hay solicitudes con esos filtros.</Typography>
+                  </Box>
+                ) : (
+                  <Stack spacing={2}>
+                    {pendientes.map(r => (
+                      <Card key={r.id} variant="outlined">
+                        <CardContent>
+                          <Stack direction="row" justifyContent="space-between" alignItems="center" gap={2} flexWrap="wrap">
+                            <Box>
+                              <Typography variant="h6">{r.cancha.toUpperCase()}</Typography>
+                              <Typography variant="body2" color="text.secondary">
+                                {r.fecha?.slice(0,10)} — {r.horaInicio} a {r.horaFin}
+                              </Typography>
+                              <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
+                                <Chip label={`Solicitante: ${r.nombre}`} size="small" />
+                                <Chip label={`Usuario: ${r.usuario?.nombre}`} size="small" variant="outlined" />
+                                <Chip label={`Tipo: ${r.tipo}`} size="small" variant="outlined" />
+                              </Stack>
+                            </Box>
+                            <TextField
+                              label="Comentario del admin"
+                              value={comentarios[r.id] || ''}
+                              onChange={(e)=>setComentarios(prev=>({...prev,[r.id]:e.target.value}))}
+                              multiline minRows={2} sx={{ flex: 1, minWidth: 260 }}
+                            />
                           </Stack>
-                        </Box>
-                        <TextField
-                          label="Comentario del admin"
-                          value={comentarios[r.id] || ''}
-                          onChange={(e)=>setComentarios(prev=>({...prev,[r.id]:e.target.value}))}
-                          multiline minRows={2} sx={{ flex: 1, minWidth: 260 }}
-                        />
-                      </Stack>
-                    </CardContent>
-                    <CardActions sx={{ justifyContent: 'flex-end' }}>
-                      <Button color="success" variant="contained"
-                        onClick={()=>setConfirm({ open:true, id:r.id, action:'aceptar' })}>
-                        Aceptar
-                      </Button>
-                      <Button color="error" variant="outlined"
-                        onClick={()=>setConfirm({ open:true, id:r.id, action:'rechazar' })}>
-                        Rechazar
-                      </Button>
-                    </CardActions>
-                  </Card>
-                ))}
-              </Stack>
-            )}
-          </CardContent>
-        </Card>
+                        </CardContent>
+                        <CardActions sx={{ justifyContent: 'flex-end' }}>
+                          <Button color="success" variant="contained"
+                            onClick={()=>setConfirm({ open:true, id:r.id, action:'aceptar' })}>
+                            Aceptar
+                          </Button>
+                          <Button color="error" variant="outlined"
+                            onClick={()=>setConfirm({ open:true, id:r.id, action:'rechazar' })}>
+                            Rechazar
+                          </Button>
+                        </CardActions>
+                      </Card>
+                    ))}
+                  </Stack>
+                )}
+              </CardContent>
+            </Card>
 
-        <Dialog open={confirm.open} onClose={()=>setConfirm({ open:false, id:null, action:null })}>
-          <DialogTitle>Confirmar acción</DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              {confirm.action === 'aceptar'
-                ? '¿Confirmás aceptar esta solicitud? Se verificará que no haya solapamientos.'
-                : '¿Confirmás rechazar esta solicitud?'}
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={()=>setConfirm({ open:false, id:null, action:null })}>Cancelar</Button>
-            <Button onClick={doAction} variant="contained">Confirmar</Button>
-          </DialogActions>
-        </Dialog>
-      </Container>
+            {/* Diálogo de confirmación */}
+            <Dialog open={confirm.open} onClose={()=>setConfirm({ open:false, id:null, action:null })}>
+              <DialogTitle>Confirmar acción</DialogTitle>
+              <DialogContent>
+                <DialogContentText>
+                  {confirm.action === 'aceptar'
+                    ? '¿Confirmás aceptar esta solicitud? Se verificará que no haya solapamientos.'
+                    : '¿Confirmás rechazar esta solicitud?'}
+                </DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={()=>setConfirm({ open:false, id:null, action:null })}>Cancelar</Button>
+                <Button onClick={doAction} variant="contained">Confirmar</Button>
+              </DialogActions>
+            </Dialog>
+          </Container>
+        </Box>
+      </Box>
+      <Footer />
     </>
   )
 }
