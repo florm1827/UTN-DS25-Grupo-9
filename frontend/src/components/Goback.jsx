@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 
 const materialTheme = createTheme();
 
-export default function GoBack() {
+export default function Goback() {
   const navigate = useNavigate();
 
   return (
