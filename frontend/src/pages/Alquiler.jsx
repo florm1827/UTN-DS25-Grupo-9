@@ -12,6 +12,7 @@ export default function Home() {
         minHeight: '100vh',
         display: 'flex',
         flexDirection: 'column',
+        overflowX: 'hidden', // evita scroll horizontal
       }}
     >
       {/* Imagen de fondo difuminada */}
@@ -47,21 +48,17 @@ export default function Home() {
           backgroundColor: 'rgba(255, 255, 255, 0.85)',
           boxShadow: 4,
           zIndex: 1,
-
-          // 🔽 Menos espacio interno
-          px: { xs: 0.5, sm: 1 },
-          py: { xs: 0.5, sm: 1 },
+          px: { xs: 1, sm: 2 },
+          py: { xs: 1, sm: 2 },
         }}
       >
         {/* Contenedor interno del formulario */}
         <Box
           sx={{
             width: '100%',
-            maxWidth: 1600,
-            height: '100%',
-            // 🔽 Asegura que no haya márgenes extra
-            m: 0,
-            p: 0,
+            maxWidth: { xs: '95%', sm: 1600 }, // adaptable a móviles
+            height: 'auto',
+            m: '0 auto',
           }}
         >
           <FormularioConGrilla />
