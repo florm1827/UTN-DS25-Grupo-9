@@ -60,25 +60,25 @@ export default function Footer() {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <InstagramIcon fontSize="small" />
               <Link
-                href="https://www.instagram.com/usuario"
+                href="https://www.instagram.com/hipodromoclubdetenis/"
                 target="_blank"
                 rel="noopener"
                 underline="hover"
                 color="inherit"
               >
-                @usuario
+                @hipodromoclubdetenis
               </Link>
             </Box>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <FacebookIcon fontSize="small" />
               <Link
-                href="https://www.facebook.com/usuario"
+                href="https://www.facebook.com/tenislaplata"
                 target="_blank"
                 rel="noopener"
                 underline="hover"
                 color="inherit"
               >
-                facebook.com/usuario
+                facebook.com/tenislaplata
               </Link>
             </Box>
           </Stack>
@@ -114,7 +114,7 @@ export default function Footer() {
             </Typography>
           </Box>
           <Typography variant="body1">
-            aca ponemo la api con el google maps
+            Av. 44, C. 115 y, B1900 La Plata, Provincia de Buenos Aires, Argentina
           </Typography>
         </Box>
       </Box>
