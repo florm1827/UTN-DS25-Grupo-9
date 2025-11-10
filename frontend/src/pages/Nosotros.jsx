@@ -68,7 +68,9 @@ export default function Nosotros() {
             level="body-md"
             sx={{ textAlign: 'justify', fontSize: '1rem', lineHeight: 1.7 }}
           >
-           no me dieron un testo desde el area de marketing, sepan disculpa
+ El Hipódromo Club de Tenis es un club dedicado principalmente al tenis,
+ con instalaciones que incluyen canchas y espacios para la práctica de este deporte.
+ Abierto todos los días de 08:00 a 22:00, ofrece horarios amplios para socios y visitantes.
           </Typography>
         </Sheet>
       </div>
