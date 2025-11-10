@@ -8,14 +8,23 @@ import { useAuth } from '../context/AuthContext.jsx'
 
 const CANCHAS = ['cancha1','cancha2','cancha3','cancha4','cancha5','cancha6','cancha7','cancha8']
 
-// 🎨 Colores originales (manteniendo los tuyos anteriores)
+// 🎨 Colores suaves y sus equivalentes de texto
 const TIPO_BG = {
-  RESERVA: '#64b5f6',        // azul claro
-  TURNO_FIJO: '#b39ddb',     // violeta claro
-  CLASE: '#81c784',          // verde
-  ESCUELA: '#ffb74d',        // naranja
-  TORNEO: '#ef9a9a',         // rojo suave
-  MANTENIMIENTO: '#e0e0e0',  // gris
+  RESERVA: '#e3f2fd',        // celeste muy suave
+  TURNO_FIJO: '#ede7f6',     // violeta muy suave
+  CLASE: '#e8f5e9',          // verde muy suave
+  ESCUELA: '#fff3e0',        // naranja muy suave
+  TORNEO: '#ffebee',         // rojo muy suave
+  MANTENIMIENTO: '#eeeeee',  // gris claro
+}
+
+const TIPO_FG = {
+  RESERVA: '#0d47a1',
+  TURNO_FIJO: '#4a148c',
+  CLASE: '#1b5e20',
+  ESCUELA: '#e65100',
+  TORNEO: '#b71c1c',
+  MANTENIMIENTO: '#424242',
 }
 
 const genSlots = () => {
@@ -93,9 +102,10 @@ export default function Grilla({ reservas = [], fecha }) {
                     )
                   }
 
-                  const bg = TIPO_BG[r.tipo] || '#90a4ae'
-                  const textColor = isAdmin ? '#fff' : '#000'
-                  const contentForAdmin = `${r?.nombre ?? '-'} · ${r?.tipo?.replace('_', ' ')}`
+                  const bg = TIPO_BG[r.tipo] || '#f5f5f5'
+                  const fg = TIPO_FG[r.tipo] || '#000'
+                  const textColor = isAdmin ? fg : fg
+                  const contentForAdmin = `${r?.nombre ?? '-'}`
 
                   return (
                     <TableCell key={cancha + slot} align="center" sx={{ p: 0.5 }}>
@@ -122,7 +132,6 @@ export default function Grilla({ reservas = [], fecha }) {
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
                             whiteSpace: 'nowrap',
-                            textShadow: isAdmin ? '0 1px 2px rgba(0,0,0,0.35)' : 'none',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
@@ -148,4 +157,3 @@ export default function Grilla({ reservas = [], fecha }) {
     </Paper>
   )
 }
-
