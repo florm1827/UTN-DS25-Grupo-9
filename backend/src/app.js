@@ -22,7 +22,7 @@ app.use('/api/auth', authRoutes)
 app.use('/api/reservas', reservasRoutes)
 app.use('/api/users', userRoutes)
 app.get('/', (req, res) => {
-  res.send('Backend funcionando ✅');
+  res.send('Backend funcionando ');
 });
 
 export default app

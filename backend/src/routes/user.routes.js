@@ -4,7 +4,7 @@ import { authRequired } from '../middlewares/auth.js'
 
 const router = Router()
 
-// Baja de cuenta del usuario actual
+// Baja de cuenta del usuario 
 router.delete('/me', authRequired, deleteMe)
 
 export default router

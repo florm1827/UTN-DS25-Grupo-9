@@ -46,21 +46,21 @@ export default function Formulario() {
   const [msg, setMsg] = useState('')
   const [error, setError] = useState('')
 
+  // 🔓 Cargar ACEPTADAS SIEMPRE (endpoint público)
   const cargarReservasAceptadas = async (fechaStr) => {
-    if (!token) return
     try {
-      const res = await fetch(`${API_URL}/reservas?fecha=${fechaStr}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+      const res = await fetch(`${API_URL}/reservas/aceptadas?fecha=${fechaStr}`)
       const data = await res.json()
       setReservas(data.ok ? (data.reservas || []) : [])
-    } catch { setReservas([]) }
+    } catch {
+      setReservas([])
+    }
   }
 
   useEffect(() => {
     cargarReservasAceptadas(fecha)
     if (user && user.rol !== 'ADMIN') setNombre(user?.nombre || '')
-  }, [fecha, token])
+  }, [fecha, user])
 
   const haySolape = ({ cancha, horaInicio, horaFin }) =>
     reservas.some((r) => r.cancha === cancha && horaInicio < r.horaFin && horaFin > r.horaInicio)
@@ -68,7 +68,7 @@ export default function Formulario() {
   const onSubmit = async (e) => {
     e.preventDefault()
     setError(''); setMsg('')
-    if (!token) return setError('Debes iniciar sesión para reservar')
+    if (!token) return setError('Iniciá sesión para poder reservar')
     if (!fecha || !cancha || !horaInicio || !horaFin) return setError('Completá todos los campos')
     if (horaInicio >= horaFin) return setError('La hora de inicio debe ser menor que la de fin')
 
@@ -89,38 +89,82 @@ export default function Formulario() {
       setCancha(''); setHoraInicio(''); setHoraFin('')
       if (user?.rol === 'ADMIN') setNombre('')
       cargarReservasAceptadas(fecha)
-    } catch { setError('Error de conexión con el servidor') }
+    } catch {
+      setError('Error de conexión con el servidor')
+    }
   }
 
   const tipos = user?.rol === 'ADMIN' ? TIPOS_ADMIN : TIPOS_USER
 
   return (
     <Box sx={{ display: 'flex', gap: 3, p: 3, flexWrap: 'wrap' }}>
-      <Paper component="form" onSubmit={onSubmit} sx={{ p: 2, width: 360, display: 'flex', flexDirection: 'column', gap: 2 }} elevation={2}>
+      <Paper
+        component="form"
+        onSubmit={onSubmit}
+        sx={{ p: 2, width: 360, display: 'flex', flexDirection: 'column', gap: 2 }}
+        elevation={2}
+      >
         <Typography variant="h6">Solicitar reserva</Typography>
         {error && <Alert severity="error">{error}</Alert>}
         {msg && <Alert severity="success">{msg}</Alert>}
 
-        <TextField label="Fecha" type="date" value={fecha} onChange={(e)=>setFecha(e.target.value)} InputLabelProps={{ shrink: true }} required />
-        <TextField select label="Cancha" value={cancha} onChange={(e)=>setCancha(e.target.value)} required>
+        <TextField
+          label="Fecha"
+          type="date"
+          value={fecha}
+          onChange={(e)=>setFecha(e.target.value)}
+          InputLabelProps={{ shrink: true }}
+          required
+        />
+        <TextField
+          select
+          label="Cancha"
+          value={cancha}
+          onChange={(e)=>setCancha(e.target.value)}
+          required
+        >
           {CANCHAS.map(c => <MenuItem key={c} value={c}>{c.toUpperCase()}</MenuItem>)}
         </TextField>
-        <TextField select label="Hora inicio" value={horaInicio} onChange={(e)=>setHoraInicio(e.target.value)} required>
+        <TextField
+          select
+          label="Hora inicio"
+          value={horaInicio}
+          onChange={(e)=>setHoraInicio(e.target.value)}
+          required
+        >
           {HORARIOS.map(h => <MenuItem key={h} value={h}>{h}</MenuItem>)}
         </TextField>
-        <TextField select label="Hora fin" value={horaFin} onChange={(e)=>setHoraFin(e.target.value)} required>
+        <TextField
+          select
+          label="Hora fin"
+          value={horaFin}
+          onChange={(e)=>setHoraFin(e.target.value)}
+          required
+        >
           {HORARIOS.map(h => <MenuItem key={h} value={h}>{h}</MenuItem>)}
         </TextField>
 
-        <TextField select label="Tipo" value={tipo} onChange={(e)=>setTipo(e.target.value)}>
+        <TextField
+          select
+          label="Tipo"
+          value={tipo}
+          onChange={(e)=>setTipo(e.target.value)}
+        >
           {tipos.map(t => <MenuItem key={t.value} value={t.value}>{t.label}</MenuItem>)}
         </TextField>
 
         {user?.rol === 'ADMIN' && (
-          <TextField label="Nombre de la reserva" value={nombre} onChange={(e)=>setNombre(e.target.value)} placeholder="Ej: Torneo / Escuela / Clase" />
+          <TextField
+            label="Nombre de la reserva"
+            value={nombre}
+            onChange={(e)=>setNombre(e.target.value)}
+            placeholder="Ej: Torneo / Escuela / Clase"
+          />
         )}
 
-        <Button type="submit" variant="contained">Enviar solicitud</Button>
+        <Button type="submit" variant="contained">
+          Enviar solicitud
+        </Button>
       </Paper>
 
       <Box sx={{ flex: 1, minWidth: 480 }}>

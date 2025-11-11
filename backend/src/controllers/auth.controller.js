@@ -1,4 +1,3 @@
-// src/controllers/auth.controller.js
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import prisma from '../lib/prisma.js'
@@ -16,7 +15,7 @@ export const register = async (req, res) => {
   try {
     const { nombre, email, password } = req.body
 
-    // ¿ya existe?
+    // verifica si ya existe
     const userFound = await prisma.usuario.findUnique({
       where: { email },
     })
@@ -26,13 +25,13 @@ export const register = async (req, res) => {
 
     const passwordHash = await bcrypt.hash(password, 10)
 
-    // 👇 siempre creamos USER desde el registro público
+    // creamos USER desde el registro
     const user = await prisma.usuario.create({
       data: {
         nombre,
         email,
         password: passwordHash,
-        rol: 'USER', // el ADMIN lo creamos a mano o desde un endpoint protegido
+        rol: 'USER', 
       },
     })
 
@@ -73,13 +72,13 @@ export const login = async (req, res) => {
       return res.status(400).json({ ok: false, msg: 'Credenciales inválidas' })
     }
 
-    // ✅ Incluir NOMBRE en el payload del token
+    // NOMBRE en el payload del token
     const token = jwt.sign(
       {
         id: usuario.id,
         email: usuario.email,
         rol: usuario.rol,
-        nombre: usuario.nombre, // 👈 aquí va el nombre
+        nombre: usuario.nombre, 
       },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
@@ -91,7 +90,7 @@ export const login = async (req, res) => {
       user: {
         id: usuario.id,
         email: usuario.email,
-        nombre: usuario.nombre, // 👈 también en la respuesta
+        nombre: usuario.nombre, 
         rol: usuario.rol,
       },
     })
@@ -102,7 +101,6 @@ export const login = async (req, res) => {
 }
 
 // GET /api/auth/me
-// src/controllers/auth.controller.js
 export const me = async (req, res) => {
   try {
     // req.user viene del middleware que verifica el token

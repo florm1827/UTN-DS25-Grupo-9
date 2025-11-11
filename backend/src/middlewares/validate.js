@@ -1,4 +1,3 @@
-// src/middlewares/validate.js
 export const validate =
   (schema) =>
   (req, res, next) => {
@@ -9,7 +8,7 @@ export const validate =
         errors: result.error.issues.map((i) => i.message),
       })
     }
-    // guardamos el body parseado
+
     req.body = result.data
     next()
   }

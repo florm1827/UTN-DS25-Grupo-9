@@ -1,4 +1,3 @@
-// src/middlewares/auth.js
 import jwt from 'jsonwebtoken'
 
 export const authRequired = (roles = []) => {
@@ -16,7 +15,7 @@ export const authRequired = (roles = []) => {
     try {
       const payload = jwt.verify(token, process.env.JWT_SECRET)
       req.user = payload // { id, email, rol }
-      // si la ruta pide roles y el rol del user no está, 403
+      // si la ruta pide roles y el rol del user no está
       if (roles.length > 0 && !roles.includes(payload.rol)) {
         return res.status(403).json({ ok: false, msg: 'No autorizado' })
       }

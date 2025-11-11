@@ -32,8 +32,8 @@ model Reserva {
   usuarioId  Int
   usuario    Usuario       @relation(fields: [usuarioId], references: [id])
   createdAt  DateTime      @default(now())
-  baja       Boolean       @default(false) //  marca de “dado de baja” (para TURNO_FIJO)
-  updatedAt  DateTime      @default(now()) @updatedAt
+  baja       Boolean       @default(false) // Unicamente par baja "Turno fijo"
+  updatedAt   DateTime       @default(now()) @updatedAt
 }
 
 enum EstadoReserva {

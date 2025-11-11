@@ -17,7 +17,8 @@ import {
 } from '../controllers/reservas.controller.js'
 
 const router = Router()
-
+// USER/NO USeR: lista reservas aceptadas
+router.get('/aceptadas', listarReservasAceptadas)
 // USER: crear solicitud
 router.post('/', authRequired(), validate(createReservaSchema), crearReserva)
 
