@@ -42,7 +42,7 @@ export default function Perfil() {
     <>
       <Header />
 
-      {/* 🔹 Fondo con imagen y desenfoque */}
+      {/* Fondo con imagen y desenfoque */}
       <Box
         sx={{
           position: 'relative',
@@ -108,7 +108,7 @@ export default function Perfil() {
         </Container>
       </Box>
 
-      {/* ✅ Footer agregado */}
+      {/* Cambio footer */}
       <Footer />
 
       {/* Diálogo de confirmación */}

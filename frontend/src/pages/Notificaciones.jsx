@@ -17,7 +17,7 @@ export default function Notificaciones() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
 
-  // 🚫 bloqueo si no hay sesión
+  //  bloqueo si no hay sesión
   useEffect(() => {
     if (!token) {
       navigate('/log', { replace: true, state: { from: '/notificaciones' } })
@@ -68,18 +68,18 @@ export default function Notificaciones() {
     <>
       <Header />
 
-      {/* 🔹 Fondo con imagen difuminada */}
+      {/* Fondo con imagen difuminada */}
       <Box
         sx={{
           position: 'relative',
-          minHeight: 'calc(100vh - 64px)', // ocupa toda la pantalla menos el header
+          minHeight: 'calc(100vh - 64px)', 
           backgroundImage: 'url(https://journey.app/blog/wp-content/uploads/2021/11/reglas-deportivas_Tenis_.jpg)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          py: 6, // 🟢 Espacio arriba y abajo dentro del fondo
+          py: 6, 
         }}
       >
         {/* Capa de desenfoque */}

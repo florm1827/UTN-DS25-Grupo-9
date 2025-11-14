@@ -12,7 +12,7 @@ export default function Home() {
         minHeight: '100vh',
         display: 'flex',
         flexDirection: 'column',
-        overflowX: 'hidden', // evita scroll horizontal
+        overflowX: 'hidden', 
       }}
     >
       {/* Imagen de fondo difuminada */}
@@ -56,7 +56,7 @@ export default function Home() {
         <Box
           sx={{
             width: '100%',
-            maxWidth: { xs: '95%', sm: 1600 }, // adaptable a móviles
+            maxWidth: { xs: '95%', sm: 1600 }, 
             height: 'auto',
             m: '0 auto',
           }}

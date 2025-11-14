@@ -46,7 +46,7 @@ export default function Formulario() {
   const [msg, setMsg] = useState('')
   const [error, setError] = useState('')
 
-  // 🔓 Cargar ACEPTADAS SIEMPRE (endpoint público)
+  // Cargar ACEPTADAS SIEMPRE 
   const cargarReservasAceptadas = async (fechaStr) => {
     try {
       const res = await fetch(`${API_URL}/reservas/aceptadas?fecha=${fechaStr}`)

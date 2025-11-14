@@ -8,14 +8,13 @@ import { useAuth } from '../context/AuthContext.jsx'
 
 const CANCHAS = ['cancha1','cancha2','cancha3','cancha4','cancha5','cancha6','cancha7','cancha8']
 
-// 🎨 Colores suaves y sus equivalentes de texto
 const TIPO_BG = {
-  RESERVA: '#e3f2fd',        // celeste muy suave
-  TURNO_FIJO: '#ede7f6',     // violeta muy suave
-  CLASE: '#e8f5e9',          // verde muy suave
-  ESCUELA: '#fff3e0',        // naranja muy suave
-  TORNEO: '#ffebee',         // rojo muy suave
-  MANTENIMIENTO: '#eeeeee',  // gris claro
+  RESERVA: '#e3f2fd',      
+  TURNO_FIJO: '#ede7f6',    
+  CLASE: '#e8f5e9',         
+  ESCUELA: '#fff3e0',        
+  TORNEO: '#ffebee',         
+  MANTENIMIENTO: '#eeeeee',  
 }
 
 const TIPO_FG = {

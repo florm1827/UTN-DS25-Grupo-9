@@ -6,10 +6,10 @@ import FullscreenLoader from './FullscreenLoader.jsx'
 export default function ProtectedRoute({ children }) {
   const { user, loading } = useAuth()
 
-  // Mientras AuthContext verifica token/usuario → mostrar spinner
+  // Mientras AuthContext verifica token/usuario -> animacion
   if (loading) return <FullscreenLoader />
 
-  // Si no hay usuario → redirigir a login
+  // Si no hay usuario -> redirigir a login
   if (!user) return <Navigate to="/log" replace />
 
   return children

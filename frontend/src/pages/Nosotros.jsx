@@ -20,6 +20,7 @@ export default function Nosotros() {
           alignItems: 'center',
           position: 'relative',
           padding: '10px',
+          fontFamily: '"Segoe UI", Tahoma, sans-serif',
         }}
       >
         {/* Capa difuminada de fondo */}
@@ -41,7 +42,7 @@ export default function Nosotros() {
           <GoBack />
         </div>
 
-        {/* Recuadro principal ocupando casi toda la página */}
+        {/* ocupa casi toda la página */}
         <Sheet
           sx={{
             width: { xs: '95%', sm: '60%', md: '50%' },

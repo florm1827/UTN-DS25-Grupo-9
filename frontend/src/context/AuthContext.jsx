@@ -10,7 +10,7 @@ export function AuthProvider({ children }) {
   const [token, setToken] = useState(null)
   const [loading, setLoading] = useState(true)
 
-  // al montar, intentar recuperar el token del localStorage
+  // recuperar el token del localStorage
   useEffect(() => {
     const savedToken = localStorage.getItem('token')
     if (!savedToken) {

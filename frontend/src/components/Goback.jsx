@@ -17,12 +17,12 @@ export default function Goback() {
         size="small"
         aria-label="volver"
         sx={{
-          backgroundColor: 'white', // fondo blanco
-          color: 'black',           // color del ícono
+          backgroundColor: 'white', 
+          color: 'black',           
           padding: '6px',
           ml: 1,
           '&:hover': {
-            backgroundColor: '#f0f0f0', // ligero cambio de color al hacer hover
+            backgroundColor: '#f0f0f0', 
           },
         }}
       >

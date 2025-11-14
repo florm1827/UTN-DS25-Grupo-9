@@ -48,7 +48,7 @@ export default function Register() {
         return
       }
 
-      // guardamos la sesión que devuelve el backend
+      // guarda la sesión que devuelve el backend
       login(data)
       navigate('/')
     } catch (err) {

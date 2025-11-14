@@ -81,7 +81,7 @@ export default function AdminPage() {
     <>
       <Header />
 
-      {/* 🔹 Fondo con imagen y efecto difuminado */}
+      {/* Fondo con imagen y efecto difuminado */}
       <Box
         sx={{
           position: 'relative',

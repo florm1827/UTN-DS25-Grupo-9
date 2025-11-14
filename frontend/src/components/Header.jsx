@@ -85,7 +85,7 @@ export default function Header() {
         position: 'relative',
       }}
     >
-      {/* 👈 GoBack a la izquierda, solo si no estamos en "/" */}
+      {/* GoBack a la izquierda, solo si no estamos en "/" */}
       {location.pathname !== '/' && (
         <Box sx={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)' }}>
           <GoBack />
@@ -115,7 +115,7 @@ export default function Header() {
 
       {/* DERECHA */}
       <Box sx={{ display: 'flex', gap: 2, ml: 'auto', alignItems: 'center' }}>
-        {/* 👑 admin */}
+        {/*  admin */}
         {user?.rol === 'ADMIN' && (
           <>
             <Button
@@ -176,7 +176,7 @@ export default function Header() {
             </Button>
           )}
 
-        {/* 🔐 ICONO UNIFICADO */}
+        {/* ICONO UNIFICADO */}
         <Tooltip title={user ? "Menú de usuario" : "Iniciar sesión"}>
           <IconButton
             color="inherit"

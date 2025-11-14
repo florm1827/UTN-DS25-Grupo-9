@@ -106,7 +106,7 @@ export default function AdminTurnos() {
     <>
       <Header />
 
-      {/* 🔹 Fondo con imagen y efecto difuminado */}
+      {/* Fondo con imagen y efecto difuminado */}
       <Box
         sx={{
           position: 'relative',
@@ -116,7 +116,7 @@ export default function AdminTurnos() {
           backgroundPosition: 'center',
         }}
       >
-        {/* Capa de blur */}
+        {/* Capa de desenfoque */}
         <Box
           sx={{
             position: 'absolute',
@@ -131,7 +131,7 @@ export default function AdminTurnos() {
         />
 
         {/* Contenido principal */}
-        <Box sx={{ position: 'relative', zIndex: 1, pb: 8 /* padding bottom para separar del footer visualmente */ }}>
+        <Box sx={{ position: 'relative', zIndex: 1, pb: 8  }}>
           <AppBar
             position="sticky"
             color="default"
